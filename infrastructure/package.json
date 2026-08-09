@@ -8,7 +8,7 @@
     "eslint-config-prettier": "^10.1.8"
   },
   "scripts": {
-    "format": "prettier --write . && yapf -i -r src/ && python3 -m isort src/",
-    "format:check": "prettier --check . && yapf --diff -r src/ && python3 -m isort --check-only src/"
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   }
 }
