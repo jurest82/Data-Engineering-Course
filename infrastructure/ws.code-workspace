@@ -1,16 +1,16 @@
 {
   "folders": [
     {
-      "path": "/app/backend",
-      "name": "[✪] Data Eng Course Backend",
+      "path": "/app/infrastructure",
+      "name": "[✪] Data Eng Course Infrastructure",
     },
     {
       "path": "/app/.envs",
       "name": "[✪] Parent Envs",
     },
     {
-      "path": "/app/infrastructure/.envs",
-      "name": "[⛭] Infrastructure Envs",
+      "path": "/app/backend/.envs",
+      "name": "[⛭] Backend Envs",
     },
     {
       "path": "/app/.docker",

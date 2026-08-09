@@ -1,0 +1,26 @@
+services:
+  data_eng_course_infrastructure:
+    container_name: 'DataEngCourseInfrastructure'
+    build:
+      context: .
+      dockerfile: ../../.docker/Dockerfile
+      target: img-infrastructure
+    volumes:
+      - ../..:/app
+      - data-eng-course-infrastructure-bashhistory:/commandhistory
+    env_file:
+      - ../../.envs/aws.env
+      - ../../.envs/sls.env
+      - ../.envs/config.env
+    environment:
+      - DEPLOY_APP=data-eng-course
+    working_dir: /app/infrastructure
+    restart: unless-stopped
+    command:
+      - /bin/sh
+      - -c
+      - sleep infinity
+
+volumes:
+  data-eng-course-infrastructure-bashhistory:
+
