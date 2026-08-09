@@ -40,7 +40,7 @@ At `.envs` folder, you'll need to create env files with the variables described 
 
 ### Dependencies
 
-`serverless` user must be created using `IAM` at `AWS Organization account`, and it's credentials configured in `.envs/aws.env`.
+`serverless` user must be created using `IAM` at `AWS Organization account`, and it's credentials configured in `../.envs/aws.env`.
 
 ### Deployment
 

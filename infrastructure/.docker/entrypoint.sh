@@ -9,14 +9,8 @@ COLOR_DEFAULT=$(tput sgr0)
 
 EXEC_PATH=$(dirname $(readlink -f "$0"))
 HOME_PATH=$EXEC_PATH/..
-PYTHON_DIST_PACKAGES_PATH=/usr/local/lib/python3.13/site-packages
 STEP=1
 STEP_COUNT=3
-
-run_sh() {
-    sed -i 's/\r$//' "$1"
-    sh "$1"
-}
 
 echo "${COLOR_MAGENTA}${STEP}/$STEP_COUNT:${COLOR_GREEN} Configuring Git.${COLOR_DEFAULT}"
 GIT_SCRIPT_PATH=$HOME_PATH/../.docker/git.sh
@@ -28,7 +22,7 @@ echo "$COLOR_BLUE"
 
 if [ ! -d "$HOME_PATH/node_modules" ]; then
     echo "${COLOR_MAGENTA}${STEP}/$STEP_COUNT:${COLOR_GREEN} Installing ${COLOR_BLUE}$HOME_PATH/package.json${COLOR_GREEN} dependencies.${COLOR_DEFAULT}"
-    npm install
+    cd $HOME_PATH && npm install
 else
     echo "${COLOR_MAGENTA}${STEP}/$STEP_COUNT:${COLOR_GREEN} Folder ${COLOR_BLUE}$HOME_PATH/node_modules${COLOR_GREEN} found! Skipping npm installation.${COLOR_DEFAULT}"
 fi
