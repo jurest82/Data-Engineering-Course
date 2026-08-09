@@ -1,0 +1,16 @@
+services:
+  data-eng-course:
+    container_name: 'DataEngCourse'
+    image: node:24-bookworm-slim
+    volumes:
+      - ..:/app
+      - data-eng-course-bashhistory:/commandhistory
+    working_dir: /app
+    restart: unless-stopped
+    command:
+      - /bin/sh
+      - -c
+      - sleep infinity
+
+volumes:
+  data-eng-course-bashhistory:

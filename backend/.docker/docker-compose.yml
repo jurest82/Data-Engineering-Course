@@ -1,0 +1,25 @@
+services:
+  data_eng_course_backend:
+    container_name: 'DataEngCourseBackend'
+    build:
+      context: .
+      dockerfile: ../../.docker/Dockerfile
+      target: img-backend
+    volumes:
+      - ../..:/app
+      - data-eng-course-backend-bashhistory:/commandhistory
+    env_file:
+      - ../../.envs/aws.env
+      - ../../.envs/sls.env
+      - ../.envs/config.env
+    environment:
+      - DEPLOY_APP=data-eng-course
+    working_dir: /app/backend
+    restart: unless-stopped
+    command:
+      - /bin/sh
+      - -c
+      - sleep infinity
+
+volumes:
+  data-eng-course-backend-bashhistory:

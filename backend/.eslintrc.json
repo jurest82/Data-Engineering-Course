@@ -1,0 +1,26 @@
+{
+  "env": {
+    "node": true,
+    "es2022": true,
+    "jest": true
+  },
+  "extends": ["eslint:recommended", "prettier"],
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module"
+  },
+  "rules": {
+    "max-len": [
+      "error",
+      {
+        "code": 80
+      }
+    ],
+    "no-unused-vars": "warn",
+    "no-var": "error",
+    "no-duplicate-imports": "error",
+    "no-unreachable": "error",
+    "no-case-declarations": "off",
+    "no-useless-catch": "off"
+  }
+}
