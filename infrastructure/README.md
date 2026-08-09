@@ -46,11 +46,11 @@ At `.envs` folder, you'll need to create env files with the variables described 
 
 You can deploy `Cloud Formation Stacks` using `Serverless Framework` syntax: <https://www.serverless.com/framework/docs/providers/aws/cli-reference/deploy/>
 
-Deployment order:
+Each stack lives under its own folder in `serverless/` and is deployed independently (`cd serverless/<stack> && serverless deploy`). None of the stacks below depend on another's output, so there's no required order:
 
-1. Deploy bla stack
-2. Deploy bla bla stack
-3. Deploy bla bla bla stack
+- `serverless/storage`: S3 bucket for raw accident report files.
+- `serverless/queue`: SQS queue and dead-letter queue for row-level batch processing.
+- `serverless/secrets`: Secrets Manager secret for MongoDB Atlas credentials, populated at deploy time from `MONGO_HOST`, `MONGO_USERNAME`, `MONGO_PASSWORD`, `MONGO_DBNAME`.
 
 ### Remove
 
@@ -97,6 +97,7 @@ Stacks are independent, but still, recommended remove order is inverse to deploy
 ### Service environment variables: `.envs/config.env`
 
 - `DEVELOPER`: Same username as you corporate email without domain part. It's used to guarantee some unique resource names at deploy
+- `MONGO_HOST`, `MONGO_USERNAME`, `MONGO_PASSWORD`, `MONGO_DBNAME`: MongoDB Atlas connection details, written into the `secrets` stack's Secrets Manager secret at deploy time. Only required to deploy that stack.
 
 ### Serverless Framework deployment variables
 

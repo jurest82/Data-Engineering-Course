@@ -12,7 +12,7 @@ No se instala nada de este proyecto directamente en el host. Todo el trabajo de 
 
 - **Raíz**: devcontainer liviano (solo Node), para trabajo a nivel de monorepo. `.docker/Dockerfile` es multi-stage: `img-base` (Python 3.13 + Node 24 + herramientas comunes) → `img-backend` / `img-infrastructure`.
 - **`backend/`**: API Gateway + Lambdas + sus roles IAM (Serverless Framework). Lenguaje de las Lambdas: **Python**, formateado con `yapf` + `isort` (ver `pyproject.toml`).
-- **`infrastructure/`**: recursos base compartidos (Serverless Framework): S3, SQS+DLQ, Secrets Manager, Route53/ACM. No despliega los roles IAM de las Lambdas, eso es responsabilidad de `backend`.
+- **`infrastructure/`**: recursos base compartidos (Serverless Framework): S3, SQS+DLQ, Secrets Manager. No despliega los roles IAM de las Lambdas, eso es responsabilidad de `backend`.
 - **`frontend/`** y **`etl/`**: mencionados en `README.md` como parte del monorepo, pero no existen todavía. Mientras no exista frontend, el flujo batch se prueba directo contra el API (ej. con Postman).
 - Cada subproyecto (`backend`, `infrastructure`) tiene su propio devcontainer, `docker-compose.yml`, `entrypoint.sh`, `.envs/config.env` (con `DEVELOPER`, usado para que los nombres de recursos desplegados no choquen entre desarrolladores) y `ws.code-workspace` (workspace multi-root que también deja visibles los `.envs` del otro subproyecto y los compartidos de la raíz).
 
@@ -39,15 +39,7 @@ Cliente envía un `POST` a API Gateway con el Excel de accidentes codificado en 
 
 **Base de datos**: MongoDB Atlas, tier gratuito **M0** (no AWS DocumentDB: no tiene free tier real y exigiría poner las Lambdas dentro de una VPC).
 
-## Dominio y Route53 (Infra)
-
-`infrastructure` también despliega un dominio propio para que `backend` le cree después un dominio personalizado al API Gateway (`api.{dominio}`):
-
-- `AWS::Route53::HostedZone` para el dominio.
-- `AWS::CertificateManager::Certificate` con validación DNS, para el dominio y `*.dominio` (wildcard, cubre `api.dominio` sin pedir un certificado aparte).
-- Parámetros en **SSM Parameter Store** (`/${AWS::StackName}/CertificateArn`, `/${AWS::StackName}/HostedZoneId`, `/${AWS::StackName}/DomainName`): es el mecanismo con el que `backend` lee estos valores después, no archivos `.envs` compartidos.
-
-**Claude Code nunca debe ejecutar el registro de un dominio (compra real, con costo y difícil de revertir) sin que quien lo pida confirme explícitamente, en el momento, el nombre exacto del dominio y el precio.**
+`backend` expone el API con la URL por defecto de API Gateway, sin dominio personalizado.
 
 ## Gobernanza y observabilidad diferidas
 
@@ -64,7 +56,5 @@ Estilo Conventional Commits (ver [artículo de referencia](https://medium.com/@i
 
 ## Pendientes abiertos
 
-- Comprar el dominio (TLD barato) para el Hosted Zone de `infrastructure`.
-- Crear el cluster de MongoDB Atlas (M0).
 - Frontend para subir el Excel: no es parte del alcance actual.
 - Diferenciar de verdad las imágenes Docker `img-backend` / `img-infrastructure` en `.docker/Dockerfile` si en algún momento necesitan dependencias distintas (hoy son idénticas).

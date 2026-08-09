@@ -1,0 +1,15 @@
+Resources:
+  AccidentReportsDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ${self:custom.queue.dlqName.${self:custom.stage}}
+      MessageRetentionPeriod: 1209600 # 14 days
+
+  AccidentReportsQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ${self:custom.queue.name.${self:custom.stage}}
+      VisibilityTimeout: ${self:custom.queue.visibilityTimeout}
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt AccidentReportsDLQ.Arn
+        maxReceiveCount: ${self:custom.queue.maxReceiveCount}

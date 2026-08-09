@@ -1,0 +1,54 @@
+service: queue
+frameworkVersion: '^4.6.2'
+configValidationMode: error
+
+provider:
+  name: aws
+  stage: dev
+  region: us-east-1
+  stackName: ${env:DEPLOY_APP}-${self:service}
+  deploymentBucket:
+    name: ${self:custom.s3.deploymentBucketName.${self:custom.stage}}
+
+plugins:
+  - serverless-deployment-bucket
+  - '@serverless/safeguards-plugin'
+
+resources:
+  - ${file(sqs.yml)}
+  - ${file(parameters.yml)}
+
+custom:
+  stage: ${opt:stage, self:provider.stage}
+  safeguards:
+    - safeguard: framework-version
+      enforcementLevel: warning
+      config: ${self:frameworkVersion}
+    - safeguard: allowed-regions
+      enforcementLevel: error
+      config:
+        - ${self:provider.region}
+    - safeguard: allowed-stages
+      enforcementLevel: error
+      config:
+        - dev
+        - test
+        - prod
+  servicePrefix: ${env:DEPLOY_APP}-${self:service}
+  developer: ${env:DEVELOPER}
+  s3:
+    deploymentBucketName:
+      dev: ${self:provider.region}.cfn.${self:service}.${env:DEPLOY_APP}.${self:custom.stage}.${self:custom.developer}.deploys
+      test: ${self:provider.region}.cfn.${self:service}.${env:DEPLOY_APP}.${self:custom.stage}.deploys
+      prod: ${self:provider.region}.cfn.${self:service}.${env:DEPLOY_APP}.${self:custom.stage}.deploys
+  queue:
+    name:
+      dev: ${env:DEPLOY_APP}-accident-reports-${self:custom.stage}-${self:custom.developer}
+      test: ${env:DEPLOY_APP}-accident-reports-${self:custom.stage}
+      prod: ${env:DEPLOY_APP}-accident-reports-${self:custom.stage}
+    dlqName:
+      dev: ${env:DEPLOY_APP}-accident-reports-dlq-${self:custom.stage}-${self:custom.developer}
+      test: ${env:DEPLOY_APP}-accident-reports-dlq-${self:custom.stage}
+      prod: ${env:DEPLOY_APP}-accident-reports-dlq-${self:custom.stage}
+    visibilityTimeout: 60
+    maxReceiveCount: 3

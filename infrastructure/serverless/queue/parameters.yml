@@ -1,0 +1,32 @@
+Resources:
+  AccidentReportsQueueUrl:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/AccidentReportsQueueUrl
+      Tier: Standard
+      Type: String
+      Value: !Ref AccidentReportsQueue
+
+  AccidentReportsQueueArn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/AccidentReportsQueueArn
+      Tier: Standard
+      Type: String
+      Value: !GetAtt AccidentReportsQueue.Arn
+
+  AccidentReportsDLQUrl:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/AccidentReportsDLQUrl
+      Tier: Standard
+      Type: String
+      Value: !Ref AccidentReportsDLQ
+
+  AccidentReportsDLQArn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/AccidentReportsDLQArn
+      Tier: Standard
+      Type: String
+      Value: !GetAtt AccidentReportsDLQ.Arn
