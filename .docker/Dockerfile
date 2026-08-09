@@ -44,11 +44,6 @@ RUN useradd -ms $SHELL $USER
 RUN mkdir -p $VOLUME \
     && chown -R $USER:$USER $VOLUME
 
-# Set up SSH keys
-RUN mkdir -p $USER_HOME/.ssh
-RUN ln -s /run/secrets/gitlab_ssh_private_key $USER_HOME/.ssh/gitlab
-RUN chown -R $USER:$USER $USER_HOME/.ssh
-
 # Preserve bash history
 RUN SNIPPET="export PROMPT_COMMAND='history -a' && export HISTFILE=/commandhistory/.bash_history" \
     && echo $SNIPPET >> "/root/.bashrc" \
