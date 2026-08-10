@@ -1,0 +1,19 @@
+ValidateAndStore:
+  name: ${self:custom.servicePrefix}-ValidateAndStore
+  handler: src/validate_and_store/handler.handler
+  role: !GetAtt ValidateAndStoreRole.Arn
+  timeout: 25
+  memorySize: 256
+  package:
+    patterns:
+      - ../src/common/**
+      - ../src/validate_and_store/**
+  layers:
+    - !Ref CommonsLambdaLayer
+  environment:
+    RAW_REPORTS_BUCKET_NAME: ${self:custom.rawReportsBucketName}
+  events:
+    - http:
+        path: /accident-reports
+        method: post
+        private: true

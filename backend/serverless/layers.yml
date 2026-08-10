@@ -1,0 +1,7 @@
+Commons:
+  name: ${self:custom.servicePrefix}-Commons
+  package:
+    patterns:
+      - '!./**'
+      - python/**
+  path: ../src/layers/commons
