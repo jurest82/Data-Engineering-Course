@@ -20,3 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - S3 bucket for raw files (`storage`)
     - SQS queue with a dead-letter queue (`queue`)
     - Secrets Manager secret for MongoDB Atlas credentials (`secrets`)
+- `backend` subproject:
+  - `ValidateAndStore` Lambda: validates an uploaded accident reports Excel file (structure and business rules) and stores it raw in S3, behind a REST API with an API Key
+  - Shared Python Lambda Layer (`Commons`) for cross-Lambda dependencies (`openpyxl` for now)
+  - Test fixtures (`backend/tests/fixtures/`) covering the valid, missing-column, invalid-rows and exceeds-max-rows cases
