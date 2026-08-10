@@ -31,7 +31,9 @@ Serverless Framework, solo CLI, sin Serverless Dashboard: no se ponen las keys `
 
 Cliente envía un `POST` a API Gateway con el Excel de accidentes codificado en **base64**, máximo **300 filas** por archivo.
 
-1. **Lambda 1** (`ValidateAndStore`, invocada por API Gateway, síncrona): valida la estructura del Excel **y** las reglas de negocio; si cualquier fila es inválida, rechaza el archivo completo (no guarda nada, responde 400 con el detalle). Si todo es válido, guarda el archivo crudo en S3 y responde rápido, sin esperar el resto del procesamiento (evita el límite de 29s de API Gateway). Esquema del Excel (columnas en español, mapeadas a inglés para el código/Mongo):
+**Estado: solo el paso 1 (Lambda 1, `ValidateAndStore`) está construido, desplegado y probado.** Los pasos 2 y 3 (Lambda 2 y Lambda 3) todavía son solo diseño, no hay código ni stack de esas Lambdas.
+
+1. **Lambda 1** (`ValidateAndStore`, invocada por API Gateway, síncrona) — ✅ construida: valida la estructura del Excel **y** las reglas de negocio; si cualquier fila es inválida, rechaza el archivo completo (no guarda nada, responde 400 con el detalle). Si todo es válido, guarda el archivo crudo en S3 y responde rápido, sin esperar el resto del procesamiento (evita el límite de 29s de API Gateway). Esquema del Excel (columnas en español, mapeadas a inglés para el código/Mongo):
 
    | Columna Excel | Campo en código/Mongo | Validación |
    |---|---|---|
@@ -44,8 +46,8 @@ Cliente envía un `POST` a API Gateway con el Excel de accidentes codificado en 
    | `cedula_persona_involucrada` | `involved_person_id` | Numérico, 6-10 dígitos (PII) |
 
    API expuesta como REST API (no HTTP API) para poder usar el API Key nativo de API Gateway (`private: true` en el evento + `provider.apiGateway.apiKeys`): sin el header `x-api-key` correcto, API Gateway rechaza la petición antes de invocar la Lambda. Esquema y validaciones compartidos en `backend/src/common/accident_reports.py`, reusado por las Lambdas 2 y 3 cuando existan.
-2. El evento `ObjectCreated` de ese bucket S3 dispara **Lambda 2**: fracciona el Excel en un JSON por fila y los envía a SQS usando `send_message_batch` (lotes de hasta 10), no uno por uno.
-3. **SQS**, con una **Dead Letter Queue (DLQ)** configurada, dispara **Lambda 3** con tamaño de lote 1 (procesa una fila por invocación):
+2. El evento `ObjectCreated` de ese bucket S3 dispara **Lambda 2** (⏳ pendiente de construir): fracciona el Excel en un JSON por fila y los envía a SQS usando `send_message_batch` (lotes de hasta 10), no uno por uno. Va a reusar `backend/src/common/accident_reports.py` para volver a parsear/validar el Excel (Lambda 1 no le pasa los datos ya parseados, solo el archivo en S3).
+3. **SQS**, con una **Dead Letter Queue (DLQ)** configurada, dispara **Lambda 3** (⏳ pendiente de construir) con tamaño de lote 1 (procesa una fila por invocación):
    - Valida la fila (defensa en profundidad; no confiar ciegamente en lo que ya validó Lambda 1).
    - Si es válida: obtiene las credenciales de Mongo desde **Secrets Manager** (cacheadas en una variable de módulo entre invocaciones "warm") y usa un **cliente de Mongo también cacheado/reutilizado** entre invocaciones, para guardar el documento en MongoDB Atlas.
    - Si falla la validación: la Lambda **envía explícitamente el mensaje a la DLQ ella misma**, en vez de dejar que la excepción se propague y que SQS la reintente varias veces hasta agotar su `maxReceiveCount` (una fila con datos inválidos no se arregla reintentando; la DLQ debe reservarse conceptualmente para fallas de procesamiento, no solo para "SQS se rindió").
@@ -65,11 +67,21 @@ Documentado en `changelog.md`, bajo `## [Unreleased]`:
 
 ## Convención de commits
 
-Estilo Conventional Commits (ver [artículo de referencia](https://medium.com/@iambonitheuri/the-art-of-writing-meaningful-git-commit-messages-a56887a4cb49)): `<type>[scope]: <descripción>`, tipos como `feat`/`fix`/`refactor`/`chore`/`docs`/etc., asunto en modo imperativo, máximo 50 caracteres, primera letra en mayúscula, sin punto final; cuerpo opcional envuelto a 72 caracteres explicando qué y por qué.
+Base: Conventional Commits (ver [artículo de referencia](https://medium.com/@iambonitheuri/the-art-of-writing-meaningful-git-commit-messages-a56887a4cb49)): tipos como `feat`/`fix`/`refactor`/`chore`/`docs`/`test`/etc., modo imperativo, sin punto final.
+
+**Estilo real que usa Juan Pablo en este repo**: cada línea del mensaje es un bullet `* <type>: <descripción>` (con el `*` literal al inicio), una línea por cada cambio distinto, aunque varios queden en el mismo commit. Sin cuerpo aparte, sin explicación adicional debajo de los bullets. Ejemplo real:
+```
+* feat: add ValidateAndStore Lambda behind a REST API with an API key
+* feat: add shared Commons Lambda layer for Python dependencies
+* chore: ignore Lambda layer python/ folders in prettier, yapf and isort
+* docs: update backend README deployment section for the single-stack layout
+```
+Cuando un commit toca varias cosas (código + docs, por ejemplo), reflejar cada una en su propio bullet, no resumir solo la principal. Si los cambios son de naturaleza muy distinta, preferir varios commits separados en vez de un solo commit con muchos bullets no relacionados.
 
 **Nunca agregar co-autoría de Claude en los commits de este repositorio.**
 
 ## Pendientes abiertos
 
+- **Siguiente paso concreto: construir Lambda 2** (fracciona el Excel en S3 en JSON por fila, `send_message_batch` a SQS). Después, Lambda 3 (valida cada fila, guarda en Mongo, maneja la DLQ).
 - Frontend para subir el Excel: no es parte del alcance actual.
 - Diferenciar de verdad las imágenes Docker `img-backend` / `img-infrastructure` en `.docker/Dockerfile` si en algún momento necesitan dependencias distintas (hoy son idénticas).
