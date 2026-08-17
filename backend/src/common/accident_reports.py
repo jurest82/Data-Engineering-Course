@@ -13,6 +13,13 @@ REQUIRED_COLUMNS = [
 
 ALLOWED_CITIES = {'Bogotá', 'Medellín', 'Cali', 'Barranquilla'}
 ALLOWED_SEVERITIES = {'leve', 'moderado', 'grave', 'fatal'}
+SEVERITY_TRANSLATIONS = {
+    'leve': 'minor',
+    'moderado': 'moderate',
+    'grave': 'severe',
+    'fatal': 'fatal',
+}
+ALLOWED_ENGLISH_SEVERITIES = set(SEVERITY_TRANSLATIONS.values())
 MAX_VEHICLES_INVOLVED = 20
 MIN_INVOLVED_PERSON_ID_LENGTH = 6
 MAX_INVOLVED_PERSON_ID_LENGTH = 10
@@ -46,6 +53,56 @@ def validate_workbook(worksheet):
     if errors:
         raise WorkbookValidationError(errors)
     return rows
+
+
+def validate_row(row):
+    """Validates a row already mapped to English field names (as produced by
+  `_parse_row`), e.g. one read back from an SQS message. Defense in depth:
+  the row should already be valid by the time it reaches this point."""
+    errors = []
+
+    if not _is_valid_iso_datetime(row.get('occurred_at')):
+        errors.append(f'Invalid "occurred_at": {row.get("occurred_at")!r}')
+
+    if row.get('city') not in ALLOWED_CITIES:
+        errors.append(f'Invalid "city": {row.get("city")!r}')
+
+    road = row.get('road')
+    if not isinstance(road, str) or not road.strip():
+        errors.append('"road" cannot be empty')
+
+    if row.get('severity') not in ALLOWED_ENGLISH_SEVERITIES:
+        errors.append(f'Invalid "severity": {row.get("severity")!r}')
+
+    vehicles_involved = row.get('vehicles_involved')
+    if (not isinstance(vehicles_involved, int) or
+            isinstance(vehicles_involved, bool) or
+            not 1 <= vehicles_involved <= MAX_VEHICLES_INVOLVED):
+        errors.append(f'Invalid "vehicles_involved": {vehicles_involved!r}')
+
+    involved_person_name = row.get('involved_person_name')
+    if not isinstance(involved_person_name,
+                      str) or not involved_person_name.strip():
+        errors.append('"involved_person_name" cannot be empty')
+
+    involved_person_id = row.get('involved_person_id')
+    if (not isinstance(involved_person_id, str) or
+            not involved_person_id.isdigit() or
+            not MIN_INVOLVED_PERSON_ID_LENGTH <= len(involved_person_id) <=
+            MAX_INVOLVED_PERSON_ID_LENGTH):
+        errors.append(f'Invalid "involved_person_id": {involved_person_id!r}')
+
+    return errors
+
+
+def _is_valid_iso_datetime(value):
+    if not isinstance(value, str):
+        return False
+    try:
+        dt.datetime.fromisoformat(value)
+        return True
+    except ValueError:
+        return False
 
 
 def _read_header(worksheet):
@@ -123,7 +180,7 @@ def _parse_row(row, header, row_number):
         'road':
             road,
         'severity':
-            severity,
+            SEVERITY_TRANSLATIONS[severity],
         'vehicles_involved':
             vehicles_involved,
         'involved_person_name':

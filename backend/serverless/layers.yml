@@ -5,3 +5,19 @@ Commons:
       - '!./**'
       - python/**
   path: ../src/layers/commons
+
+Mongo:
+  name: ${self:custom.servicePrefix}-Mongo
+  package:
+    patterns:
+      - '!./**'
+      - python/**
+  path: ../src/layers/mongo
+
+Security:
+  name: ${self:custom.servicePrefix}-Security
+  package:
+    patterns:
+      - '!./**'
+      - python/**
+  path: ../src/layers/security

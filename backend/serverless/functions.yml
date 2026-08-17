@@ -11,7 +11,7 @@ ValidateAndStore:
   layers:
     - !Ref CommonsLambdaLayer
   environment:
-    RAW_REPORTS_BUCKET_NAME: ${self:custom.rawReportsBucketName}
+    RAW_REPORTS_BUCKET_NAME: ${self:custom.s3.rawReportsBucket.name}
   events:
     - http:
         path: /accident-reports
@@ -31,11 +31,33 @@ SplitAndEnqueue:
   layers:
     - !Ref CommonsLambdaLayer
   environment:
-    ACCIDENT_REPORTS_QUEUE_URL: ${self:custom.accidentReportsQueueUrl}
+    ACCIDENT_REPORTS_QUEUE_URL: ${self:custom.sqs.accidentReports.url}
   events:
     - s3:
-        bucket: ${self:custom.rawReportsBucketName}
+        bucket: ${self:custom.s3.rawReportsBucket.name}
         event: s3:ObjectCreated:*
         rules:
           - prefix: uploads/
         existing: true
+
+ValidateAndPersist:
+  name: ${self:custom.servicePrefix}-ValidateAndPersist
+  handler: src/validate_and_persist/handler.handler
+  role: !GetAtt ValidateAndPersistRole.Arn
+  timeout: 15
+  memorySize: 256
+  package:
+    patterns:
+      - ../src/common/**
+      - ../src/validate_and_persist/**
+  layers:
+    - !Ref MongoLambdaLayer
+    - !Ref SecurityLambdaLayer
+  environment:
+    MONGO_CREDENTIALS_SECRET_NAME: ${self:custom.secretsManager.mongoCredentials}
+    PII_ENCRYPTION_KEY_SECRET_NAME: ${self:custom.secretsManager.piiEncryptionKey}
+    ACCIDENT_REPORTS_DLQ_URL: ${self:custom.sqs.accidentReportsDLQ.url}
+  events:
+    - sqs:
+        arn: ${self:custom.sqs.accidentReports.arn}
+        batchSize: 1
