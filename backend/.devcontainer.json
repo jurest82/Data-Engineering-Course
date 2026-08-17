@@ -10,6 +10,7 @@
         "davidanson.vscode-markdownlint",
         "eeyore.yapf",
         "esbenp.prettier-vscode",
+        "GrapeCity.gc-excelviewer",
         "irongeek.vscode-env",
         "mikestead.dotenv",
         "ms-azuretools.vscode-docker",
