@@ -20,3 +20,35 @@ Resources:
               - Effect: Allow
                 Action: s3:PutObject
                 Resource: ${self:custom.rawReportsBucketArn}/*
+
+  SplitAndEnqueueRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: ${self:custom.servicePrefix}-SplitAndEnqueue
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: ${self:custom.servicePrefix}-SplitAndEnqueue
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:DeleteObject
+                Resource: ${self:custom.rawReportsBucketArn}/uploads/*
+              - Effect: Allow
+                Action: s3:PutObject
+                Resource:
+                  - ${self:custom.rawReportsBucketArn}/processed/*
+                  - ${self:custom.rawReportsBucketArn}/failed/*
+              - Effect: Allow
+                Action: sqs:SendMessage
+                Resource: ${self:custom.accidentReportsQueueArn}

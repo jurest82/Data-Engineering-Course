@@ -17,3 +17,25 @@ ValidateAndStore:
         path: /accident-reports
         method: post
         private: true
+
+SplitAndEnqueue:
+  name: ${self:custom.servicePrefix}-SplitAndEnqueue
+  handler: src/split_and_enqueue/handler.handler
+  role: !GetAtt SplitAndEnqueueRole.Arn
+  timeout: 60
+  memorySize: 256
+  package:
+    patterns:
+      - ../src/common/**
+      - ../src/split_and_enqueue/**
+  layers:
+    - !Ref CommonsLambdaLayer
+  environment:
+    ACCIDENT_REPORTS_QUEUE_URL: ${self:custom.accidentReportsQueueUrl}
+  events:
+    - s3:
+        bucket: ${self:custom.rawReportsBucketName}
+        event: s3:ObjectCreated:*
+        rules:
+          - prefix: uploads/
+        existing: true

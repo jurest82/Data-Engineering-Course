@@ -60,3 +60,5 @@ custom:
       prod: ${self:provider.region}.cfn.${self:service}.${env:DEPLOY_APP}.${self:custom.stage}.deploys
   rawReportsBucketName: ${ssm:/${env:DEPLOY_APP}-storage/RawReportsBucketName}
   rawReportsBucketArn: ${ssm:/${env:DEPLOY_APP}-storage/RawReportsBucketArn}
+  accidentReportsQueueUrl: ${ssm:/${env:DEPLOY_APP}-queue/AccidentReportsQueueUrl}
+  accidentReportsQueueArn: ${ssm:/${env:DEPLOY_APP}-queue/AccidentReportsQueueArn}
