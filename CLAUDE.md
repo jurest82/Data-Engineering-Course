@@ -84,7 +84,6 @@ Cuando un commit toca varias cosas (código + docs, por ejemplo), reflejar cada 
 
 ## Pendientes abiertos
 
-- **El pipeline batch de las 3 Lambdas ya está completo** (construido, desplegado y probado de punta a punta).
 - Reactivar `reservedConcurrency` en Lambda 3 cuando la cuenta de AWS tenga más cupo que el mínimo de 10 ejecuciones concurrentes (free tier); hoy no hay margen para reservar nada.
 - Frontend para subir el Excel: no es parte del alcance actual.
 - Diferenciar de verdad las imágenes Docker `img-backend` / `img-infrastructure` en `.docker/Dockerfile` si en algún momento necesitan dependencias distintas (hoy son idénticas).
