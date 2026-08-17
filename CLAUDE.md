@@ -31,7 +31,7 @@ Serverless Framework, solo CLI, sin Serverless Dashboard: no se ponen las keys `
 
 Cliente envía un `POST` a API Gateway con el Excel de accidentes codificado en **base64**, máximo **300 filas** por archivo.
 
-**Estado: solo el paso 1 (Lambda 1, `ValidateAndStore`) está construido, desplegado y probado.** Los pasos 2 y 3 (Lambda 2 y Lambda 3) todavía son solo diseño, no hay código ni stack de esas Lambdas.
+**Estado: los pasos 1 y 2 (Lambda 1 y Lambda 2) están construidos, desplegados y probados.** El paso 3 (Lambda 3) todavía es solo diseño, no hay código de esa Lambda.
 
 1. **Lambda 1** (`ValidateAndStore`, invocada por API Gateway, síncrona) — ✅ construida: valida la estructura del Excel **y** las reglas de negocio; si cualquier fila es inválida, rechaza el archivo completo (no guarda nada, responde 400 con el detalle). Si todo es válido, guarda el archivo crudo en S3 y responde rápido, sin esperar el resto del procesamiento (evita el límite de 29s de API Gateway). Esquema del Excel (columnas en español, mapeadas a inglés para el código/Mongo):
 
@@ -46,13 +46,13 @@ Cliente envía un `POST` a API Gateway con el Excel de accidentes codificado en 
    | `cedula_persona_involucrada` | `involved_person_id` | Numérico, 6-10 dígitos (PII) |
 
    API expuesta como REST API (no HTTP API) para poder usar el API Key nativo de API Gateway (`private: true` en el evento + `provider.apiGateway.apiKeys`): sin el header `x-api-key` correcto, API Gateway rechaza la petición antes de invocar la Lambda. Esquema y validaciones compartidos en `backend/src/common/accident_reports.py`, reusado por las Lambdas 2 y 3 cuando existan.
-2. El evento `ObjectCreated` de ese bucket S3 dispara **Lambda 2** (⏳ pendiente de construir): fracciona el Excel en un JSON por fila y los envía a SQS usando `send_message_batch` (lotes de hasta 10), no uno por uno. Va a reusar `backend/src/common/accident_reports.py` para volver a parsear/validar el Excel (Lambda 1 no le pasa los datos ya parseados, solo el archivo en S3).
+2. El evento `ObjectCreated` de ese bucket S3 dispara **Lambda 2** (`SplitAndEnqueue`) — ✅ construida: reusa `backend/src/common/accident_reports.py` para volver a parsear/validar el Excel (Lambda 1 no le pasa los datos ya parseados, solo el archivo en S3) y, si todo sigue siendo válido, fracciona el Excel en un JSON por fila (con `source_s3_key` y `row_number` para trazabilidad) y los envía a SQS con `send_message_batch` (lotes de hasta 10). Al terminar, mueve el archivo (copia + borra, S3 no tiene "mover" nativo) a `processed/` si salió bien o a `failed/` si algo falló (antes de re-lanzar el error). El trigger de S3 está acotado al prefijo `uploads/` (`rules: - prefix: uploads/`), indispensable para no disparar un bucle al mover archivos hacia `processed/`/`failed/` dentro del mismo bucket. Que Lambda 2 falle revalidando un archivo que Lambda 1 ya aceptó es síntoma de un bug propio (no de datos del usuario, ese caso ya lo resolvió Lambda 1 de forma síncrona); por eso alertar de esos fallos es un tema operativo (ver alarma de CloudWatch diferida más abajo), no algo que el usuario necesite ver.
 3. **SQS**, con una **Dead Letter Queue (DLQ)** configurada, dispara **Lambda 3** (⏳ pendiente de construir) con tamaño de lote 1 (procesa una fila por invocación):
    - Valida la fila (defensa en profundidad; no confiar ciegamente en lo que ya validó Lambda 1).
    - Si es válida: obtiene las credenciales de Mongo desde **Secrets Manager** (cacheadas en una variable de módulo entre invocaciones "warm") y usa un **cliente de Mongo también cacheado/reutilizado** entre invocaciones, para guardar el documento en MongoDB Atlas.
    - Si falla la validación: la Lambda **envía explícitamente el mensaje a la DLQ ella misma**, en vez de dejar que la excepción se propague y que SQS la reintente varias veces hasta agotar su `maxReceiveCount` (una fila con datos inválidos no se arregla reintentando; la DLQ debe reservarse conceptualmente para fallas de procesamiento, no solo para "SQS se rindió").
    - Concurrencia reservada baja (ej. 5) en Lambda 3, para no saturar el cluster M0 (gratuito) de MongoDB Atlas con demasiadas conexiones concurrentes.
-4. Roles IAM: uno por Lambda, con permisos mínimos (Lambda 1: `s3:PutObject`; Lambda 2: `s3:GetObject` + `sqs:SendMessage`; Lambda 3: `sqs:ReceiveMessage`/`DeleteMessage` + `secretsmanager:GetSecretValue` acotado al ARN del secreto).
+4. Roles IAM: uno por Lambda, con permisos mínimos (Lambda 1: `s3:PutObject`; Lambda 2: `s3:GetObject`/`DeleteObject` en `uploads/*`, `s3:PutObject` en `processed/*` y `failed/*`, `sqs:SendMessage`; Lambda 3: `sqs:ReceiveMessage`/`DeleteMessage` + `secretsmanager:GetSecretValue` acotado al ARN del secreto).
 
 **Base de datos**: MongoDB Atlas, tier gratuito **M0** (no AWS DocumentDB: no tiene free tier real y exigiría poner las Lambdas dentro de una VPC).
 
@@ -63,7 +63,7 @@ Cliente envía un `POST` a API Gateway con el Excel de accidentes codificado en 
 Documentado en `changelog.md`, bajo `## [Unreleased]`:
 
 - Manejo de PII (`nombre_persona_involucrada`, `cedula_persona_involucrada`): decidir si se enmascara, tokeniza o cifra a nivel de campo antes de guardar en Mongo (Ley 1581 de 2012, Colombia).
-- Alarma de CloudWatch sobre la DLQ (hoy no hay ninguna alerta configurada cuando algo cae ahí).
+- Alarma de CloudWatch sobre la DLQ y sobre errores de Lambda 2 (hoy no hay ninguna alerta configurada; si Lambda 2 falla revalidando un archivo, solo se ve en CloudWatch Logs/métricas si alguien entra a revisar).
 
 ## Convención de commits
 
@@ -82,6 +82,6 @@ Cuando un commit toca varias cosas (código + docs, por ejemplo), reflejar cada 
 
 ## Pendientes abiertos
 
-- **Siguiente paso concreto: construir Lambda 2** (fracciona el Excel en S3 en JSON por fila, `send_message_batch` a SQS). Después, Lambda 3 (valida cada fila, guarda en Mongo, maneja la DLQ).
+- **Siguiente paso concreto: construir Lambda 3** (valida cada fila recibida de SQS, guarda en Mongo, maneja la DLQ ella misma si la fila es inválida).
 - Frontend para subir el Excel: no es parte del alcance actual.
 - Diferenciar de verdad las imágenes Docker `img-backend` / `img-infrastructure` en `.docker/Dockerfile` si en algún momento necesitan dependencias distintas (hoy son idénticas).
