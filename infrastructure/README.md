@@ -98,6 +98,7 @@ Stacks are independent, but still, recommended remove order is inverse to deploy
 
 - `DEVELOPER`: Same username as you corporate email without domain part. It's used to guarantee some unique resource names at deploy
 - `MONGO_HOST`, `MONGO_USERNAME`, `MONGO_PASSWORD`, `MONGO_DBNAME`: MongoDB Atlas connection details, written into the `secrets` stack's Secrets Manager secret at deploy time. Only required to deploy that stack.
+- `PII_ENCRYPTION_KEY`: symmetric key (Fernet format) used by `backend` to encrypt PII accident report fields before storing them in MongoDB Atlas, written into the `secrets` stack's Secrets Manager secret at deploy time. Generate one with `python3 -c "import secrets, base64; print(base64.urlsafe_b64encode(secrets.token_bytes(32)).decode())"`. Only required to deploy that stack.
 
 ### Serverless Framework deployment variables
 
