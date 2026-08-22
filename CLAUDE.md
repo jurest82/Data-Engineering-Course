@@ -91,3 +91,4 @@ Cuando un commit toca varias cosas (código + docs, por ejemplo), reflejar cada 
 
 - Frontend para subir el Excel: no es parte del alcance actual.
 - Diferenciar de verdad las imágenes Docker `img-backend` / `img-infrastructure` en `.docker/Dockerfile` si en algún momento necesitan dependencias distintas (hoy son idénticas).
+- **Migración pendiente del stack de `backend`**: el `service` de Serverless se renombró de `backend` a `backend-batch` (para distinguirlo del futuro stack de streaming), pero CloudFormation no permite renombrar un stack in-place. Falta, en este orden: 1) desplegar `backend-batch` (crea un stack nuevo, con una URL de API Gateway nueva), 2) volver a desplegar `alerts` (para que tome el nuevo nombre exportado vía SSM), 3) eliminar manualmente el stack viejo `backend` (`serverless remove` desde su definición previa, o vía consola de CloudFormation), 4) actualizar cualquier cliente/Postman que apunte a la URL vieja del API.

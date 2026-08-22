@@ -1,4 +1,4 @@
-service: backend
+service: backend-batch
 frameworkVersion: '^4.6.2'
 configValidationMode: error
 
