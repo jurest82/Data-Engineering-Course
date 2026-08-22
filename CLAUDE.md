@@ -70,6 +70,8 @@ Stack `infrastructure/serverless/alerts` — ✅ construido: un tópico de SNS c
 
 No hay alarma sobre errores de Lambda 1 ni de Lambda 3: Lambda 1 responde sus errores directo al cliente vía API Gateway (síncrono), y las filas inválidas de Lambda 3 van a la DLQ (ya cubierta por la alarma de arriba) en vez de lanzar una excepción.
 
+El mismo stack define también un **AWS Budget de costo** (`AWS::Budgets::Budget`, USD 1/mes, notifica por email tanto por gasto real como proyectado): a diferencia de las alarmas de CloudWatch (acotadas a este pipeline), el Budget cubre el gasto de **toda la cuenta de AWS**, pensado para detectar cuando algo se salió del free tier. Deliberadamente no se activó también "Free Tier Alerts" (una preferencia de cuenta en Billing, no un recurso de IaC, que avisaría antes de generar cualquier cargo real): se consideró y se descartó por redundante frente al Budget para el alcance de este proyecto.
+
 ## Convención de commits
 
 Base: Conventional Commits (ver [artículo de referencia](https://medium.com/@iambonitheuri/the-art-of-writing-meaningful-git-commit-messages-a56887a4cb49)): tipos como `feat`/`fix`/`refactor`/`chore`/`docs`/`test`/etc., modo imperativo, sin punto final.
