@@ -16,6 +16,7 @@ plugins:
 
 resources:
   - ${file(cloudwatch.yml)}
+  - ${file(budgets.yml)}
 
 custom:
   stage: ${opt:stage, self:provider.stage}

@@ -51,7 +51,7 @@ Each stack lives under its own folder in `serverless/` and is deployed independe
 - `serverless/storage`: S3 bucket for raw accident report files.
 - `serverless/queue`: SQS queue and dead-letter queue for row-level batch processing.
 - `serverless/secrets`: Secrets Manager secret for MongoDB Atlas credentials, populated at deploy time from `MONGO_HOST`, `MONGO_USERNAME`, `MONGO_PASSWORD`, `MONGO_DBNAME`.
-- `serverless/alerts`: SNS topic (with an email subscription) and CloudWatch alarms on the batch pipeline's dead-letter queue and on `SplitAndEnqueue` Lambda errors. **Must be deployed after `backend`**, since its alarms reference the `SplitAndEnqueue` Lambda name exported by that stack; every other stack above has no required order.
+- `serverless/alerts`: SNS topic (with an email subscription) and CloudWatch alarms on the batch pipeline's dead-letter queue and on `SplitAndEnqueue` Lambda errors, plus an account-wide AWS Budget (USD 1/month) that emails on real or forecasted spend. **Must be deployed after `backend`**, since its alarms reference the `SplitAndEnqueue` Lambda name exported by that stack; every other stack above has no required order.
 
 ### Remove
 
