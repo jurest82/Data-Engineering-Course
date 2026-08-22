@@ -18,7 +18,7 @@ No se instala nada de este proyecto directamente en el host. Todo el trabajo de 
   - **Secretos referenciados por nombre, no por ARN**: `custom.secretsManager.<nombre>` construye directo el nombre del secreto (ej. `/${env:DEPLOY_APP}-secrets/MongoCredentials`, coincide con cómo lo nombra `infrastructure`), sin buscar el ARN por SSM. El IAM sí necesita un ARN, así que se arma con un wildcard: `arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:<nombre>-*` (el `-*` cubre el sufijo aleatorio que Secrets Manager agrega).
   - **Arquitectura de despliegue (`x86_64`/`arm64`) se resuelve dinámicamente**, no a mano: `provider.architecture: ${file(architecture.js):get}`, un script que devuelve `process.arch` de Node. Necesario porque `pymongo`/`cryptography` traen extensiones compiladas, y deben coincidir con la arquitectura de quien despliegue (relevante porque los estudiantes pueden tener Mac Apple Silicon o Intel/Windows x86).
   - **Casos de prueba**: `backend/tests/fixtures/` tiene Excels de ejemplo (`valid_report.xlsx`, `missing_column.xlsx`, `invalid_rows.xlsx`, `exceeds_max_rows.xlsx`) y `generate_base64.sh`, que genera un `.json` por cada `.xlsx` con el body listo para pegar en Postman (`{"file": "<base64>"}`).
-- **`infrastructure/`**: recursos base compartidos (Serverless Framework): S3, SQS+DLQ, Secrets Manager. No despliega los roles IAM de las Lambdas, eso es responsabilidad de `backend`.
+- **`infrastructure/`**: recursos base compartidos (Serverless Framework): S3, SQS+DLQ, Secrets Manager, y alarmas de CloudWatch. No despliega los roles IAM de las Lambdas, eso es responsabilidad de `backend`. Cada recurso vive en su propio sub-stack (`serverless/storage`, `serverless/queue`, `serverless/secrets`, `serverless/alerts`), desplegado de forma independiente. Todos son independientes entre sí **excepto `alerts`**, que debe desplegarse **después** de `backend` (sus alarmas referencian, vía SSM, el nombre de la Lambda `SplitAndEnqueue` que exporta ese stack) — es la única inversión del orden habitual infra-antes-que-backend.
 - **`frontend/`** y **`etl/`**: mencionados en `README.md` como parte del monorepo, pero no existen todavía. Mientras no exista frontend, el flujo batch se prueba directo contra el API (ej. con Postman).
 - Cada subproyecto (`backend`, `infrastructure`) tiene su propio devcontainer, `docker-compose.yml`, `entrypoint.sh`, `.envs/config.env` (con `DEVELOPER`, usado para que los nombres de recursos desplegados no choquen entre desarrolladores) y `ws.code-workspace` (workspace multi-root que también deja visibles los `.envs` del otro subproyecto y los compartidos de la raíz).
 
@@ -54,18 +54,21 @@ Cliente envía un `POST` a API Gateway con el Excel de accidentes codificado en 
    - Valida la fila (defensa en profundidad; no confiar ciegamente en lo que ya validó Lambda 1/2).
    - Si es válida: cifra `involved_person_name` e `involved_person_id` (Fernet, llave desde Secrets Manager) antes de guardar; obtiene las credenciales de Mongo desde **Secrets Manager** (cacheadas en una variable de módulo entre invocaciones "warm") y usa un **cliente de Mongo también cacheado/reutilizado** entre invocaciones, para guardar el documento (con `created_at`/`updated_at` en UTC) en MongoDB Atlas.
    - Si falla la validación: la Lambda **envía explícitamente el mensaje a la DLQ ella misma** (fila original + `validation_errors`), en vez de dejar que la excepción se propague y que SQS la reintente varias veces hasta agotar su `maxReceiveCount` (una fila con datos inválidos no se arregla reintentando; la DLQ debe reservarse conceptualmente para fallas de procesamiento, no solo para "SQS se rindió"). El PII en ese mensaje de la DLQ queda en texto plano a propósito, para que alguien pueda corregir el dato antes de un redrive.
-   - Concurrencia reservada: **no aplicada por ahora**, la cuenta de AWS (free tier) tiene un límite total de solo 10 ejecuciones concurrentes y AWS exige dejar al menos 10 sin reservar; no hay margen para reservar nada hasta que el límite de la cuenta crezca (ver Pendientes).
+   - Concurrencia reservada: **no aplicada, de forma permanente mientras este proyecto se construya sobre una cuenta de AWS free tier** (límite total de solo 10 ejecuciones concurrentes, con al menos 10 sin reservar exigido por AWS); no hay margen para reservar nada.
 4. Roles IAM: uno por Lambda, con permisos mínimos (Lambda 1: `s3:PutObject`; Lambda 2: `s3:GetObject`/`DeleteObject` en `uploads/*`, `s3:PutObject` en `processed/*` y `failed/*`, `sqs:SendMessage`; Lambda 3: `sqs:ReceiveMessage`/`DeleteMessage` en la cola, `sqs:SendMessage` a la DLQ, `secretsmanager:GetSecretValue` acotado a los ARNs de los secretos de Mongo y de la llave PII).
 
 **Base de datos**: MongoDB Atlas, tier gratuito **M0** (no AWS DocumentDB: no tiene free tier real y exigiría poner las Lambdas dentro de una VPC).
 
 `backend` expone el API con la URL por defecto de API Gateway, sin dominio personalizado.
 
-## Gobernanza y observabilidad diferidas
+## Observabilidad
 
-Documentado en `changelog.md`, bajo `## [Unreleased]`:
+Stack `infrastructure/serverless/alerts` — ✅ construido: un tópico de SNS con una suscripción por email (`ALERTS_EMAIL`, requiere confirmar la suscripción la primera vez que se despliega) recibe dos alarmas de CloudWatch:
 
-- Alarma de CloudWatch sobre la DLQ y sobre errores de Lambda 2 (hoy no hay ninguna alerta configurada; si Lambda 2 falla revalidando un archivo, solo se ve en CloudWatch Logs/métricas si alguien entra a revisar).
+- Mensajes visibles en la DLQ de accidentes (`ApproximateNumberOfMessagesVisible >= 1`): indica filas que Lambda 3 no pudo validar/procesar.
+- Errores en Lambda 2 (`SplitAndEnqueue`, métrica `Errors` >= 1): indica que falló revalidando un archivo que Lambda 1 ya había aceptado, síntoma de un bug propio (ver punto 2 de la arquitectura del flujo batch).
+
+No hay alarma sobre errores de Lambda 1 ni de Lambda 3: Lambda 1 responde sus errores directo al cliente vía API Gateway (síncrono), y las filas inválidas de Lambda 3 van a la DLQ (ya cubierta por la alarma de arriba) en vez de lanzar una excepción.
 
 ## Convención de commits
 
@@ -84,6 +87,5 @@ Cuando un commit toca varias cosas (código + docs, por ejemplo), reflejar cada 
 
 ## Pendientes abiertos
 
-- Reactivar `reservedConcurrency` en Lambda 3 cuando la cuenta de AWS tenga más cupo que el mínimo de 10 ejecuciones concurrentes (free tier); hoy no hay margen para reservar nada.
 - Frontend para subir el Excel: no es parte del alcance actual.
 - Diferenciar de verdad las imágenes Docker `img-backend` / `img-infrastructure` en `.docker/Dockerfile` si en algún momento necesitan dependencias distintas (hoy son idénticas).

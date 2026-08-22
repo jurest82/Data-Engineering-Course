@@ -7,8 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- CloudWatch alarm on the batch processing dead-letter queue and on Lambda 2 errors.
-
 ## [x.x.x] - dd/10/2026
 
 ### Added
@@ -19,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - S3 bucket for raw files (`storage`)
     - SQS queue with a dead-letter queue (`queue`)
     - Secrets Manager secrets for MongoDB Atlas credentials and the PII encryption key (`secrets`)
+    - SNS topic with an email subscription, and CloudWatch alarms on the accident reports dead-letter queue and on `SplitAndEnqueue` Lambda errors (`alerts`)
 - `backend` subproject:
   - `ValidateAndStore` Lambda: validates an uploaded accident reports Excel file (structure and business rules) and stores it raw in S3, behind a REST API with an API Key
   - `SplitAndEnqueue` Lambda: re-validates the file from S3, splits it into one SQS message per row (`send_message_batch`), and moves it to `processed/` or `failed/` depending on the outcome
