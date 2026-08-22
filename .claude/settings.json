@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker exec -w /app/infrastructure/serverless/* DataEngCourseInfrastructure serverless print*)",
+      "Bash(docker exec -w /app/infrastructure/serverless/* DataEngCourseInfrastructure serverless info*)",
+      "Bash(docker exec -w /app/backend/serverless DataEngCourseBackend serverless print*)",
+      "Bash(docker exec -w /app/backend/serverless DataEngCourseBackend serverless info*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git fetch*)",
+      "Bash(git show*)",
+      "Bash(git branch)",
+      "Bash(git branch -a)",
+      "Bash(git branch -v)",
+      "Bash(git branch -av)",
+      "Bash(git branch --list*)",
+      "Bash(git check-ignore*)",
+      "Bash(docker exec DataEngCourseBackend aws * get-*)",
+      "Bash(docker exec DataEngCourseBackend aws * describe-*)",
+      "Bash(docker exec DataEngCourseBackend aws * list-*)",
+      "Bash(docker exec -w * DataEngCourseBackend aws * get-*)",
+      "Bash(docker exec -w * DataEngCourseBackend aws * describe-*)",
+      "Bash(docker exec -w * DataEngCourseBackend aws * list-*)",
+      "Bash(docker exec DataEngCourseInfrastructure aws * get-*)",
+      "Bash(docker exec DataEngCourseInfrastructure aws * describe-*)",
+      "Bash(docker exec DataEngCourseInfrastructure aws * list-*)",
+      "Bash(docker exec -w * DataEngCourseInfrastructure aws * get-*)",
+      "Bash(docker exec -w * DataEngCourseInfrastructure aws * describe-*)",
+      "Bash(docker exec -w * DataEngCourseInfrastructure aws * list-*)",
+      "Bash(aws cloudwatch describe-alarms *)",
+      "Bash(docker restart *)",
+      "Skill(update-config)",
+      "WebFetch(domain:www.serverless.com)",
+      "Bash(docker exec -w /app/backend DataEngCourseBackend npm run format)",
+      "Bash(docker exec -w /app/infrastructure DataEngCourseInfrastructure npm run format)"
+    ]
+  }
+}
