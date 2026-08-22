@@ -46,11 +46,12 @@ At `.envs` folder, you'll need to create env files with the variables described 
 
 You can deploy `Cloud Formation Stacks` using `Serverless Framework` syntax: <https://www.serverless.com/framework/docs/providers/aws/cli-reference/deploy/>
 
-Each stack lives under its own folder in `serverless/` and is deployed independently (`cd serverless/<stack> && serverless deploy`). None of the stacks below depend on another's output, so there's no required order:
+Each stack lives under its own folder in `serverless/` and is deployed independently (`cd serverless/<stack> && serverless deploy`).
 
 - `serverless/storage`: S3 bucket for raw accident report files.
 - `serverless/queue`: SQS queue and dead-letter queue for row-level batch processing.
 - `serverless/secrets`: Secrets Manager secret for MongoDB Atlas credentials, populated at deploy time from `MONGO_HOST`, `MONGO_USERNAME`, `MONGO_PASSWORD`, `MONGO_DBNAME`.
+- `serverless/alerts`: SNS topic (with an email subscription) and CloudWatch alarms on the batch pipeline's dead-letter queue and on `SplitAndEnqueue` Lambda errors. **Must be deployed after `backend`**, since its alarms reference the `SplitAndEnqueue` Lambda name exported by that stack; every other stack above has no required order.
 
 ### Remove
 
@@ -99,6 +100,7 @@ Stacks are independent, but still, recommended remove order is inverse to deploy
 - `DEVELOPER`: Same username as you corporate email without domain part. It's used to guarantee some unique resource names at deploy
 - `MONGO_HOST`, `MONGO_USERNAME`, `MONGO_PASSWORD`, `MONGO_DBNAME`: MongoDB Atlas connection details, written into the `secrets` stack's Secrets Manager secret at deploy time. Only required to deploy that stack.
 - `PII_ENCRYPTION_KEY`: symmetric key (Fernet format) used by `backend` to encrypt PII accident report fields before storing them in MongoDB Atlas, written into the `secrets` stack's Secrets Manager secret at deploy time. Generate one with `python3 -c "import secrets, base64; print(base64.urlsafe_b64encode(secrets.token_bytes(32)).decode())"`. Only required to deploy that stack.
+- `ALERTS_EMAIL`: email address subscribed to the SNS topic that the `alerts` stack's CloudWatch alarms notify. AWS sends a subscription confirmation email to this address the first time the stack is deployed; the subscription stays pending (no notifications delivered) until it's confirmed. Only required to deploy that stack.
 
 ### Serverless Framework deployment variables
 

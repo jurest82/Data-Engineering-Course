@@ -15,6 +15,14 @@ Resources:
       Type: String
       Value: !GetAtt AccidentReportsQueue.Arn
 
+  AccidentReportsDLQName:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/AccidentReportsDLQName
+      Tier: Standard
+      Type: String
+      Value: ${self:custom.queue.dlqName.${self:custom.stage}}
+
   AccidentReportsDLQUrl:
     Type: AWS::SSM::Parameter
     Properties:

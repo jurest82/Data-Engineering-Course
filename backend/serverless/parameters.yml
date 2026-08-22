@@ -1,0 +1,16 @@
+Resources:
+  SplitAndEnqueueLambdaName:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/SplitAndEnqueueLambdaName
+      Tier: Standard
+      Type: String
+      Value: ${self:custom.servicePrefix}-SplitAndEnqueue
+
+  SplitAndEnqueueLambdaArn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/SplitAndEnqueueLambdaArn
+      Tier: Standard
+      Type: String
+      Value: !GetAtt SplitAndEnqueueLambdaFunction.Arn
