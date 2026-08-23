@@ -7,7 +7,7 @@ provider:
   stage: dev
   region: us-east-1
   runtime: python3.13
-  architecture: ${file(architecture.js):get}
+  architecture: ${file(../architecture.js):get}
   stackName: ${env:DEPLOY_APP}-${self:service}
   deploymentBucket:
     name: ${self:custom.s3.deploymentBucketName.${self:custom.stage}}
