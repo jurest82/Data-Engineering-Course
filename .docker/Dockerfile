@@ -68,4 +68,5 @@ USER $USER
 FROM img-base AS img-backend
 USER root
 RUN pip3 install boto3
+RUN apt-get install -y mosquitto-clients
 USER $USER
