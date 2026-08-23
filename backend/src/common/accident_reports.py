@@ -141,11 +141,12 @@ def _parse_row(row, header, row_number):
     if severity not in ALLOWED_SEVERITIES:
         errors.append(f'Row {row_number}: invalid "severidad": {severity!r}')
 
-    vehicles_involved = _coerce_int(cell('vehiculos_involucrados'))
+    raw_vehicles_involved = cell('vehiculos_involucrados')
+    vehicles_involved = _coerce_int(raw_vehicles_involved)
     if (vehicles_involved is None or
             not 1 <= vehicles_involved <= MAX_VEHICLES_INVOLVED):
-        errors.append('Row {}: invalid "vehiculos_involucrados": {!r}'.format(
-            row_number, cell('vehiculos_involucrados')))
+        errors.append(f'Row {row_number}: invalid "vehiculos_involucrados": '
+                      f'{raw_vehicles_involved!r}')
 
     involved_person_name = cell('nombre_persona_involucrada')
     involved_person_name = (involved_person_name.strip() if isinstance(
@@ -154,12 +155,12 @@ def _parse_row(row, header, row_number):
         errors.append(
             f'Row {row_number}: "nombre_persona_involucrada" cannot be empty')
 
-    involved_person_id = _coerce_involved_person_id(
-        cell('cedula_persona_involucrada'))
+    raw_involved_person_id = cell('cedula_persona_involucrada')
+    involved_person_id = _coerce_involved_person_id(raw_involved_person_id)
     if involved_person_id is None:
         errors.append(
-            'Row {}: invalid "cedula_persona_involucrada": {!r}'.format(
-                row_number, cell('cedula_persona_involucrada')))
+            f'Row {row_number}: invalid "cedula_persona_involucrada": '
+            f'{raw_involved_person_id!r}')
 
     if errors:
         raise WorkbookValidationError(errors)

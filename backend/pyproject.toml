@@ -21,7 +21,6 @@ skip_glob = ["src/layers/*/python/*"]
 max-line-length = 80
 disable = [
     "C0111",  # missing-docstring
-    "C0330",  # bad-continuation
     "C0411",  # wrong-import-order
     "W0703"   # broad-except
 ]
