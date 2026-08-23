@@ -22,6 +22,11 @@ def handler(event, context):
 
 def _process_record(record):
     reading = json.loads(record['body'])
+    # thing_name comes from the IoT topic rule's topic(3), which the
+    # SensorReadingsPolicy guarantees matches the publishing certificate's
+    # ThingName -- it overrides whatever "sensor_id" the payload itself
+    # claims, since that field is client-controlled and could be spoofed.
+    reading['sensor_id'] = reading.pop('thing_name', None)
     errors = validate_reading(reading)
     if errors:
         _send_to_dlq(reading, errors)

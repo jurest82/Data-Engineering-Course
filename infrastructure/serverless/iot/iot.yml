@@ -58,7 +58,14 @@ Resources:
     Properties:
       RuleName: ${self:custom.iot.ruleName.${self:custom.stage}}
       TopicRulePayload:
-        Sql: "SELECT * FROM 'sensors/traffic/+/data'"
+        # topic(3) is the sensor-id segment of sensors/traffic/<sensor-id>/data,
+        # which the SensorReadingsPolicy guarantees matches the connecting
+        # certificate's ThingName (iot:Publish is scoped to that topic). Added
+        # as its own field (not "sensor_id" -- AWS IoT SQL doesn't document
+        # how a naming collision with SELECT * would resolve) so the Lambda
+        # can use it to override the payload's own "sensor_id", which a
+        # sensor's JSON body could otherwise misreport.
+        Sql: "SELECT *, topic(3) AS thing_name FROM 'sensors/traffic/+/data'"
         AwsIotSqlVersion: '2016-03-23'
         RuleDisabled: false
         Actions:

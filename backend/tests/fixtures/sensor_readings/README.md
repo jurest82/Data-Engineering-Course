@@ -14,3 +14,5 @@ Example MQTT payloads for the streaming pipeline. Two ways to publish them, depe
 | `invalid_speed.json` | Forwarded to the `SensorReadingsDLQ` dead-letter queue (`speed_avg` out of range) |
 
 After publishing an invalid one, check `PersistSensorReading`'s CloudWatch Logs or the DLQ's message count to see it land there.
+
+Note: the `sensor_id` inside these files is illustrative only -- the topic rule always overrides it with the actual `sensors/traffic/<sensor-id>/data` segment you publish to (see `PersistSensorReading` in `CLAUDE.md`), so the persisted/DLQ'd document's `sensor_id` reflects whichever topic (or sensor certificate) you actually used, not the file's content.
