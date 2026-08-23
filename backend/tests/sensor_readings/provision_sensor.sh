@@ -25,9 +25,9 @@ else
 
   CERT_RESPONSE=$(aws iot create-keys-and-certificate --set-as-active)
   echo "$CERT_RESPONSE" | python3 -c "import json, sys; print(json.load(sys.stdin)['certificatePem'])" \
-    > "$CERTS_DIR/certificate.pem.crt"
+    > "$CERTS_DIR/certificate.pem.crt.tmp"
   echo "$CERT_RESPONSE" | python3 -c "import json, sys; print(json.load(sys.stdin)['keyPair']['PrivateKey'])" \
-    > "$CERTS_DIR/private.pem.key"
+    > "$CERTS_DIR/private.pem.key.tmp"
   CERT_ARN=$(echo "$CERT_RESPONSE" | python3 -c "import json, sys; print(json.load(sys.stdin)['certificateArn'])")
 
   POLICY_NAME=$(aws ssm get-parameter \
@@ -37,6 +37,12 @@ else
 
   aws iot attach-policy --policy-name "$POLICY_NAME" --target "$CERT_ARN"
   aws iot attach-thing-principal --thing-name "$SENSOR_ID" --principal "$CERT_ARN"
+
+  # Only rename to the final names (the ones the idempotency check above and
+  # send_sensor_reading.sh look for) once the policy/thing attachments have
+  # actually succeeded, so a partial failure never looks like "already done".
+  mv "$CERTS_DIR/certificate.pem.crt.tmp" "$CERTS_DIR/certificate.pem.crt"
+  mv "$CERTS_DIR/private.pem.key.tmp" "$CERTS_DIR/private.pem.key"
 
   echo "Provisioned $SENSOR_ID, certificate saved to $CERTS_DIR"
 fi

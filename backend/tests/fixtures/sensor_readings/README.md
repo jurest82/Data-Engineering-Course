@@ -1,9 +1,11 @@
 # Sensor reading fixtures
 
-Example MQTT payloads to publish manually from the AWS IoT Core console (**AWS IoT Core → MQTT test client → Publish to a topic**), to demo the streaming pipeline without needing a real sensor/certificate.
+Example MQTT payloads for the streaming pipeline. Two ways to publish them, depending on what you want to demo:
 
-- **Topic**: `sensors/traffic/sensor-001/data` (any `sensors/traffic/<anything>/data` matches the deployed topic rule)
-- **Message payload**: paste the contents of one of these files
+1. **AWS IoT Core console** (no certificate needed, authenticates with your IAM credentials): **AWS IoT Core → MQTT test client → Publish to a topic**.
+   - **Topic**: `sensors/traffic/sensor-001/data` (any `sensors/traffic/<anything>/data` matches the deployed topic rule)
+   - **Message payload**: paste the contents of one of these files
+2. **`../../sensor_readings/send_sensor_reading.sh`** (real device certificate, mTLS -- the same authentication path a real sensor would use): `./send_sensor_reading.sh sensor-001 ../fixtures/sensor_readings/invalid_city.json`. Run `provision_sensor.sh <sensor-id>` first. See that script for the negative-test demo (a sensor publishing on _another_ sensor's topic, denied by the Policy).
 
 | File                 | Expected outcome                                                                  |
 | -------------------- | --------------------------------------------------------------------------------- |

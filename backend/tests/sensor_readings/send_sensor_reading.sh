@@ -46,4 +46,5 @@ mosquitto_pub \
   -t "$TOPIC" \
   -f "$PAYLOAD_FILE"
 
-echo "Published $PAYLOAD_FILE to $TOPIC using $SENSOR_ID's certificate."
+echo "Sent $PAYLOAD_FILE to $TOPIC using $SENSOR_ID's certificate."
+echo "Note: this only confirms the client sent it -- MQTT QoS 0 gives no broker ack, so a Policy denial fails silently here. Check the queue/Lambda logs (or a console subscription) to confirm it actually arrived."
