@@ -1,5 +1,8 @@
 import datetime as dt
 
+from src.common.cities import ALLOWED_CITIES
+from src.common.validators import is_valid_iso_datetime
+
 REQUIRED_COLUMNS = [
     'fecha',
     'hora',
@@ -11,7 +14,6 @@ REQUIRED_COLUMNS = [
     'cedula_persona_involucrada',
 ]
 
-ALLOWED_CITIES = {'Bogotá', 'Medellín', 'Cali', 'Barranquilla'}
 ALLOWED_SEVERITIES = {'leve', 'moderado', 'grave', 'fatal'}
 SEVERITY_TRANSLATIONS = {
     'leve': 'minor',
@@ -61,7 +63,7 @@ def validate_row(row):
   the row should already be valid by the time it reaches this point."""
     errors = []
 
-    if not _is_valid_iso_datetime(row.get('occurred_at')):
+    if not is_valid_iso_datetime(row.get('occurred_at')):
         errors.append(f'Invalid "occurred_at": {row.get("occurred_at")!r}')
 
     if row.get('city') not in ALLOWED_CITIES:
@@ -93,16 +95,6 @@ def validate_row(row):
         errors.append(f'Invalid "involved_person_id": {involved_person_id!r}')
 
     return errors
-
-
-def _is_valid_iso_datetime(value):
-    if not isinstance(value, str):
-        return False
-    try:
-        dt.datetime.fromisoformat(value)
-        return True
-    except ValueError:
-        return False
 
 
 def _read_header(worksheet):
