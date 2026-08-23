@@ -48,10 +48,13 @@ You can deploy `Cloud Formation Stacks` using `Serverless Framework` syntax: <ht
 
 Each stack lives under its own folder in `serverless/` and is deployed independently (`cd serverless/<stack> && serverless deploy`).
 
-- `serverless/storage`: S3 bucket for raw accident report files.
-- `serverless/queue`: SQS queue and dead-letter queue for row-level batch processing.
-- `serverless/secrets`: Secrets Manager secret for MongoDB Atlas credentials, populated at deploy time from `MONGO_HOST`, `MONGO_USERNAME`, `MONGO_PASSWORD`, `MONGO_DBNAME`.
-- `serverless/alerts`: SNS topic (with an email subscription) and CloudWatch alarms on the batch pipeline's dead-letter queue and on `SplitAndEnqueue` Lambda errors, plus an account-wide AWS Budget (USD 1/month) that emails on real or forecasted spend. **Must be deployed after `backend`**, since its alarms reference the `SplitAndEnqueue` Lambda name exported by that stack; every other stack above has no required order.
+Deployment order:
+
+1. Deploy `serverless/storage` stack (S3 bucket for raw accident report files)
+2. Deploy `serverless/queue` stack (SQS queues and dead-letter queues, for the batch pipeline and for streaming sensor readings)
+3. Deploy `serverless/secrets` stack (Secrets Manager secret for MongoDB Atlas credentials, populated at deploy time from `MONGO_HOST`, `MONGO_USERNAME`, `MONGO_PASSWORD`, `MONGO_DBNAME`)
+4. Deploy `serverless/iot` stack (IoT Core policy and topic rule that routes sensor readings to the streaming queue; depends on `serverless/queue`)
+5. Deploy `serverless/alerts` stack (SNS topic with an email subscription, CloudWatch alarms on the batch pipeline's dead-letter queue and on `SplitAndEnqueue` Lambda errors, and an account-wide AWS Budget on cost; depends on `serverless/queue` **and** on `backend`'s `batch` stack already being deployed, see `backend/README.md`)
 
 ### Remove
 

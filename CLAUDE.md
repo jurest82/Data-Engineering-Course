@@ -10,7 +10,7 @@ No se instala nada de este proyecto directamente en el host. Todo el trabajo de 
 
 ## Estructura del monorepo
 
-- **Raíz**: devcontainer liviano (solo Node), para trabajo a nivel de monorepo. `.docker/Dockerfile` es multi-stage: `img-base` (Python 3.13 + Node 24 + herramientas comunes) → `img-backend` / `img-infrastructure`.
+- **Raíz**: devcontainer liviano (solo Node), para trabajo a nivel de monorepo. `.docker/Dockerfile` es multi-stage: `img-base` (Python 3.13 + Node 24 + herramientas comunes, incluye `~/.cfnlintrc` para que `cfn-lint` ignore el falso positivo W3005 que agrega Serverless Framework) → `img-backend` (suma `boto3`, solo para que el linter/autocompletado local resuelva los imports; el runtime de Lambda ya lo trae, nunca se empaqueta) / `img-infrastructure` (sin diferencias adicionales por ahora).
 - **`backend/`**: contiene **varios stacks de Serverless Framework, cada uno en su propia carpeta bajo `backend/serverless/<stack>/`** (mismo patrón que `infrastructure/serverless/<stack>/`), no un solo stack para todo el backend:
   - `backend/serverless/layers` (`service: backend-layers`): solo las Lambda Layers compartidas, sin funciones propias. **Debe desplegarse primero**, ya que los demás stacks de `backend` consumen sus ARNs vía SSM.
   - `backend/serverless/batch` (`service: backend-batch`): API Gateway + las 3 Lambdas del flujo batch + sus roles IAM.
@@ -70,16 +70,17 @@ Sensores fijos de tráfico reportan velocidad promedio y conteo de vehículos po
 
 **Por qué no Kinesis Data Streams**: es el servicio de streaming "clásico" de AWS, pero no tiene free tier real (cobra por shard-hora desde el minuto uno, sin importar el tráfico) — rompería la premisa de este proyecto de vivir en free tier. IoT Core sí tiene free tier de mensajes, y además encaja temáticamente con "sensores".
 
-**Estado**: en construcción. Ya construido y desplegado:
-- Las 3 Lambda Layers compartidas ya viven en su propio stack (`backend/serverless/layers`, ver "Estructura del monorepo"), listas para ser consumidas también por el futuro stack de streaming.
-- Colas `SensorReadings`/`SensorReadingsDLQ` en `infrastructure/serverless/queue` (mismo stack que ya alojaba las colas del batch).
+**Estado**: en construcción. Construido (código listo; ver qué falta desplegar/probar más abajo):
+- Las 3 Lambda Layers compartidas viven en su propio stack (`backend/serverless/layers`, ver "Estructura del monorepo"), consumidas también por este flujo.
+- Colas `SensorReadings`/`SensorReadingsDLQ` en `infrastructure/serverless/queue` (mismo stack que ya alojaba las colas del batch) — **desplegadas**.
+- Stack `infrastructure/serverless/iot`: una **Policy de IoT genérica y reusable** (no ligada a un dispositivo específico) que usa variables de política de IoT (`${iot:Connection.Thing.ThingName}`) para que cada certificado solo pueda conectarse/publicar en su propio tópico (`sensors/traffic/<su-thing-name>/data`), y un `AWS::IoT::TopicRule` (`SELECT * FROM 'sensors/traffic/+/data'`) que enruta cada mensaje a `SensorReadingsQueue`, con su propio rol IAM (`sqs:SendMessage` acotado a esa cola). Deliberadamente **no** incluye el Thing/certificado de un dispositivo concreto — eso es aprovisionamiento por sensor, no un recurso fijo del stack (ver "Pendiente").
+- Stack `backend/serverless/streaming`: Lambda `PersistSensorReading` (batchSize 1, mismo patrón de defensa en profundidad + auto-envío a su DLQ que Lambda 3 del batch) + su rol IAM. Esquema de la lectura: `sensor_id`, `city`, `road`, `speed_avg`, `vehicle_count`, `recorded_at` — sin PII (no hay persona involucrada), así que no usa cifrado ni la capa `Security`. Persiste en MongoDB Atlas, misma base `trafficMonitoring`, colección nueva `trafficSensorReadings`.
+- `backend/src/common/mongo.py`: helper compartido de conexión/caché a Mongo (`get_collection(secret_name, collection_name)`), extraído para que tanto `PersistSensorReading` como Lambda 3 del batch lo reusen sin duplicar el patrón de caché de cliente "warm".
 
 Pendiente:
-- Nuevo stack `backend/serverless/streaming`: un `AWS::IoT::TopicRule` (tópico MQTT `sensors/traffic/+/data` → esa SQS) + Lambda `PersistSensorReading` (batchSize 1) + su rol IAM.
-- Esquema de la lectura del sensor: `sensor_id`, `city`, `road`, `speed_avg`, `vehicle_count`, `recorded_at` — sin PII (no hay persona involucrada), así que no hace falta cifrado ni la capa `Security` para esta Lambda.
-- Persistencia en MongoDB Atlas: misma base `trafficMonitoring` ya usada, colección nueva `trafficSensorReadings`.
-- El "Thing"/certificado X.509/policy de prueba en IoT Core se crean **manualmente** (mismo criterio que las credenciales de Mongo o la llave PII), documentado como paso manual en el README de `backend`.
-- Simulación de sensores en desarrollo/demo: **`mosquitto_pub`** (cliente MQTT que se conecta con el certificado X.509 real del "Thing", requiere agregar el paquete `mosquitto-clients` al devcontainer de `backend`) en vez de `aws iot-data publish` (que usaría credenciales de IAM en vez de la autenticación real del dispositivo) — se prefirió `mosquitto_pub` por reproducir fielmente cómo se autenticaría un sensor real, de mayor valor pedagógico para el curso.
+- Desplegar `infrastructure/serverless/iot` y `backend/serverless/streaming` (código ya construido, aún no desplegado).
+- Crear manualmente el "Thing"/certificado X.509 de prueba en IoT Core (mismo criterio que las credenciales de Mongo o la llave PII) y adjuntarle la Policy ya desplegada — vía un script de aprovisionamiento aún no construido.
+- Simulación de sensores en desarrollo/demo: **`mosquitto_pub`** (cliente MQTT que se conecta con el certificado X.509 real del "Thing") en vez de `aws iot-data publish` (que usaría credenciales de IAM en vez de la autenticación real del dispositivo) — se prefirió `mosquitto_pub` por reproducir fielmente cómo se autenticaría un sensor real, de mayor valor pedagógico para el curso. Falta el paquete `mosquitto-clients` en el devcontainer de `backend` y el script de simulación en sí.
 
 ## Observabilidad
 
@@ -110,4 +111,3 @@ Cuando un commit toca varias cosas (código + docs, por ejemplo), reflejar cada 
 ## Pendientes abiertos
 
 - Frontend para subir el Excel: no es parte del alcance actual.
-- Diferenciar de verdad las imágenes Docker `img-backend` / `img-infrastructure` en `.docker/Dockerfile` si en algún momento necesitan dependencias distintas (hoy son idénticas).

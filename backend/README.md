@@ -53,6 +53,7 @@ Deployment order:
 
 1. Deploy `serverless/layers` stack (shared Python Lambda Layers: `Commons`, `Mongo`, `Security`)
 2. Deploy `serverless/batch` stack (the batch accident reports pipeline: API Gateway, all 3 Lambdas, their IAM roles)
+3. Deploy `serverless/streaming` stack (the `PersistSensorReading` Lambda and its IAM role, for the streaming sensor readings pipeline; depends on `serverless/layers` and on `infrastructure`'s `queue` and `secrets` stacks already being deployed)
 
 ### Remove
 
