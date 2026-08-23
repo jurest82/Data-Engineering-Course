@@ -46,6 +46,8 @@ custom:
   sqs:
     accidentReportsDLQ:
       name: ${ssm:/${env:DEPLOY_APP}-queue/AccidentReportsDLQName}
+    sensorReadingsDLQ:
+      name: ${ssm:/${env:DEPLOY_APP}-queue/SensorReadingsDLQName}
   lambda:
     splitAndEnqueue:
       name: ${ssm:/${env:DEPLOY_APP}-backend-batch/SplitAndEnqueueLambdaName}

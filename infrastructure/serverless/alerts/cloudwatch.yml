@@ -30,6 +30,25 @@ Resources:
       AlarmActions:
         - !Ref AlertsTopic
 
+  SensorReadingsDLQMessagesAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: ${self:custom.servicePrefix}-sensor-readings-dlq-messages-${self:custom.stage}
+      AlarmDescription: At least one message is visible in the sensor readings dead-letter queue
+      Namespace: AWS/SQS
+      MetricName: ApproximateNumberOfMessagesVisible
+      Dimensions:
+        - Name: QueueName
+          Value: ${self:custom.sqs.sensorReadingsDLQ.name}
+      Statistic: Maximum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref AlertsTopic
+
   SplitAndEnqueueErrorsAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
