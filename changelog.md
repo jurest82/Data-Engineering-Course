@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `infrastructure` subproject:
   - Serverless Framework stacks for the batch accident reports pipeline:
     - S3 bucket for raw files (`storage`)
-    - SQS queue with a dead-letter queue (`queue`)
+    - SQS queues with dead-letter queues, for the batch pipeline and for streaming sensor readings (`queue`)
     - Secrets Manager secrets for MongoDB Atlas credentials and the PII encryption key (`secrets`)
     - SNS topic with an email subscription, CloudWatch alarms on the accident reports dead-letter queue and on `SplitAndEnqueue` Lambda errors, and an account-wide AWS Budget on cost (`alerts`)
 - `backend` subproject:

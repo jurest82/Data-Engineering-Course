@@ -42,13 +42,25 @@ custom:
       test: ${self:provider.region}.cfn.${self:service}.${env:DEPLOY_APP}.${self:custom.stage}.deploys
       prod: ${self:provider.region}.cfn.${self:service}.${env:DEPLOY_APP}.${self:custom.stage}.deploys
   queue:
-    name:
-      dev: ${env:DEPLOY_APP}-accident-reports-${self:custom.stage}-${self:custom.developer}
-      test: ${env:DEPLOY_APP}-accident-reports-${self:custom.stage}
-      prod: ${env:DEPLOY_APP}-accident-reports-${self:custom.stage}
-    dlqName:
-      dev: ${env:DEPLOY_APP}-accident-reports-dlq-${self:custom.stage}-${self:custom.developer}
-      test: ${env:DEPLOY_APP}-accident-reports-dlq-${self:custom.stage}
-      prod: ${env:DEPLOY_APP}-accident-reports-dlq-${self:custom.stage}
-    visibilityTimeout: 60
-    maxReceiveCount: 3
+    accidentReports:
+      name:
+        dev: ${env:DEPLOY_APP}-accident-reports-${self:custom.stage}-${self:custom.developer}
+        test: ${env:DEPLOY_APP}-accident-reports-${self:custom.stage}
+        prod: ${env:DEPLOY_APP}-accident-reports-${self:custom.stage}
+      dlqName:
+        dev: ${env:DEPLOY_APP}-accident-reports-dlq-${self:custom.stage}-${self:custom.developer}
+        test: ${env:DEPLOY_APP}-accident-reports-dlq-${self:custom.stage}
+        prod: ${env:DEPLOY_APP}-accident-reports-dlq-${self:custom.stage}
+      visibilityTimeout: 60
+      maxReceiveCount: 3
+    sensorReadings:
+      name:
+        dev: ${env:DEPLOY_APP}-sensor-readings-${self:custom.stage}-${self:custom.developer}
+        test: ${env:DEPLOY_APP}-sensor-readings-${self:custom.stage}
+        prod: ${env:DEPLOY_APP}-sensor-readings-${self:custom.stage}
+      dlqName:
+        dev: ${env:DEPLOY_APP}-sensor-readings-dlq-${self:custom.stage}-${self:custom.developer}
+        test: ${env:DEPLOY_APP}-sensor-readings-dlq-${self:custom.stage}
+        prod: ${env:DEPLOY_APP}-sensor-readings-dlq-${self:custom.stage}
+      visibilityTimeout: 60
+      maxReceiveCount: 3

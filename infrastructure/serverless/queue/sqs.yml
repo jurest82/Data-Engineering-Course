@@ -2,14 +2,29 @@ Resources:
   AccidentReportsDLQ:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: ${self:custom.queue.dlqName.${self:custom.stage}}
+      QueueName: ${self:custom.queue.accidentReports.dlqName.${self:custom.stage}}
       MessageRetentionPeriod: 1209600 # 14 days
 
   AccidentReportsQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: ${self:custom.queue.name.${self:custom.stage}}
-      VisibilityTimeout: ${self:custom.queue.visibilityTimeout}
+      QueueName: ${self:custom.queue.accidentReports.name.${self:custom.stage}}
+      VisibilityTimeout: ${self:custom.queue.accidentReports.visibilityTimeout}
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt AccidentReportsDLQ.Arn
-        maxReceiveCount: ${self:custom.queue.maxReceiveCount}
+        maxReceiveCount: ${self:custom.queue.accidentReports.maxReceiveCount}
+
+  SensorReadingsDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ${self:custom.queue.sensorReadings.dlqName.${self:custom.stage}}
+      MessageRetentionPeriod: 1209600 # 14 days
+
+  SensorReadingsQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ${self:custom.queue.sensorReadings.name.${self:custom.stage}}
+      VisibilityTimeout: ${self:custom.queue.sensorReadings.visibilityTimeout}
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt SensorReadingsDLQ.Arn
+        maxReceiveCount: ${self:custom.queue.sensorReadings.maxReceiveCount}

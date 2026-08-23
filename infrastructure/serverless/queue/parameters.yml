@@ -21,7 +21,7 @@ Resources:
       Name: !Sub /${AWS::StackName}/AccidentReportsDLQName
       Tier: Standard
       Type: String
-      Value: ${self:custom.queue.dlqName.${self:custom.stage}}
+      Value: ${self:custom.queue.accidentReports.dlqName.${self:custom.stage}}
 
   AccidentReportsDLQUrl:
     Type: AWS::SSM::Parameter
@@ -38,3 +38,43 @@ Resources:
       Tier: Standard
       Type: String
       Value: !GetAtt AccidentReportsDLQ.Arn
+
+  SensorReadingsQueueUrl:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/SensorReadingsQueueUrl
+      Tier: Standard
+      Type: String
+      Value: !Ref SensorReadingsQueue
+
+  SensorReadingsQueueArn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/SensorReadingsQueueArn
+      Tier: Standard
+      Type: String
+      Value: !GetAtt SensorReadingsQueue.Arn
+
+  SensorReadingsDLQName:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/SensorReadingsDLQName
+      Tier: Standard
+      Type: String
+      Value: ${self:custom.queue.sensorReadings.dlqName.${self:custom.stage}}
+
+  SensorReadingsDLQUrl:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/SensorReadingsDLQUrl
+      Tier: Standard
+      Type: String
+      Value: !Ref SensorReadingsDLQ
+
+  SensorReadingsDLQArn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/SensorReadingsDLQArn
+      Tier: Standard
+      Type: String
+      Value: !GetAtt SensorReadingsDLQ.Arn

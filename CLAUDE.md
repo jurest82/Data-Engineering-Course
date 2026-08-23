@@ -2,7 +2,7 @@
 
 ## Qué es este proyecto
 
-Pipeline de datos batch que ingiere reportes de accidentes de tránsito, cargados como un archivo Excel, para el servicio de monitoreo de tráfico descrito en `README.md`. Este documento cubre el flujo **batch**; el flujo de streaming (sensores de tráfico) es un stack independiente que se documenta aparte cuando exista.
+Pipeline de datos batch que ingiere reportes de accidentes de tránsito, cargados como un archivo Excel, para el servicio de monitoreo de tráfico descrito en `README.md`. Este documento cubre el flujo **batch** (completo) y el flujo de **streaming** de sensores de tráfico (en construcción, ver su propia sección).
 
 ## Cómo trabajar en este repositorio
 
@@ -21,7 +21,7 @@ No se instala nada de este proyecto directamente en el host. Todo el trabajo de 
   - **Secretos referenciados por nombre, no por ARN**: `custom.secretsManager.<nombre>` construye directo el nombre del secreto (ej. `/${env:DEPLOY_APP}-secrets/MongoCredentials`, coincide con cómo lo nombra `infrastructure`), sin buscar el ARN por SSM. El IAM sí necesita un ARN, así que se arma con un wildcard: `arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:<nombre>-*` (el `-*` cubre el sufijo aleatorio que Secrets Manager agrega).
   - **Arquitectura de despliegue (`x86_64`/`arm64`) se resuelve dinámicamente**, no a mano: `provider.architecture: ${file(architecture.js):get}`, un script que devuelve `process.arch` de Node. Necesario porque `pymongo`/`cryptography` traen extensiones compiladas, y deben coincidir con la arquitectura de quien despliegue (relevante porque los estudiantes pueden tener Mac Apple Silicon o Intel/Windows x86).
   - **Casos de prueba**: `backend/tests/fixtures/` tiene Excels de ejemplo (`valid_report.xlsx`, `missing_column.xlsx`, `invalid_rows.xlsx`, `exceeds_max_rows.xlsx`) y `generate_base64.sh`, que genera un `.json` por cada `.xlsx` con el body listo para pegar en Postman (`{"file": "<base64>"}`).
-- **`infrastructure/`**: recursos base compartidos (Serverless Framework): S3, SQS+DLQ, Secrets Manager, y alarmas de CloudWatch. No despliega los roles IAM de las Lambdas, eso es responsabilidad de `backend`. Cada recurso vive en su propio sub-stack (`serverless/storage`, `serverless/queue`, `serverless/secrets`, `serverless/alerts`), desplegado de forma independiente. Todos son independientes entre sí **excepto `alerts`**, que debe desplegarse **después** de `backend/serverless/batch` (sus alarmas referencian, vía SSM, el nombre de la Lambda `SplitAndEnqueue` que exporta ese stack) — es la única inversión del orden habitual infra-antes-que-backend.
+- **`infrastructure/`**: recursos base compartidos (Serverless Framework): S3, SQS+DLQ, Secrets Manager, y alarmas de CloudWatch. No despliega los roles IAM de las Lambdas, eso es responsabilidad de `backend`. Cada recurso vive en su propio sub-stack (`serverless/storage`, `serverless/queue`, `serverless/secrets`, `serverless/alerts`), desplegado de forma independiente. `serverless/queue` es deliberadamente de propósito general, no exclusivo del batch: alberga tanto `AccidentReports`/su DLQ (batch) como `SensorReadings`/su DLQ (streaming), en vez de tener un sub-stack de colas por flujo. Todos son independientes entre sí **excepto `alerts`**, que debe desplegarse **después** de `backend/serverless/batch` (sus alarmas referencian, vía SSM, el nombre de la Lambda `SplitAndEnqueue` que exporta ese stack) — es la única inversión del orden habitual infra-antes-que-backend.
 - **`frontend/`** y **`etl/`**: mencionados en `README.md` como parte del monorepo, pero no existen todavía. Mientras no exista frontend, el flujo batch se prueba directo contra el API (ej. con Postman).
 - Cada subproyecto (`backend`, `infrastructure`) tiene su propio devcontainer, `docker-compose.yml`, `entrypoint.sh`, `.envs/config.env` (con `DEVELOPER`, usado para que los nombres de recursos desplegados no choquen entre desarrolladores) y `ws.code-workspace` (workspace multi-root que también deja visibles los `.envs` del otro subproyecto y los compartidos de la raíz).
 
@@ -63,6 +63,23 @@ Cliente envía un `POST` a API Gateway con el Excel de accidentes codificado en 
 **Base de datos**: MongoDB Atlas, tier gratuito **M0** (no AWS DocumentDB: no tiene free tier real y exigiría poner las Lambdas dentro de una VPC).
 
 `backend` expone el API con la URL por defecto de API Gateway, sin dominio personalizado.
+
+## Arquitectura del flujo streaming (en construcción)
+
+Sensores fijos de tráfico reportan velocidad promedio y conteo de vehículos por vía, cada pocos segundos, vía MQTT contra **AWS IoT Core**. Mismo patrón ya probado en el flujo batch: **IoT Core → SQS → Lambda → MongoDB**, con la Lambda validando de nuevo por defensa en profundidad y reenviando ella misma las filas inválidas a su propia DLQ (mismo criterio que Lambda 3 del batch).
+
+**Por qué no Kinesis Data Streams**: es el servicio de streaming "clásico" de AWS, pero no tiene free tier real (cobra por shard-hora desde el minuto uno, sin importar el tráfico) — rompería la premisa de este proyecto de vivir en free tier. IoT Core sí tiene free tier de mensajes, y además encaja temáticamente con "sensores".
+
+**Estado**: en construcción. Ya construido y desplegado:
+- Las 3 Lambda Layers compartidas ya viven en su propio stack (`backend/serverless/layers`, ver "Estructura del monorepo"), listas para ser consumidas también por el futuro stack de streaming.
+- Colas `SensorReadings`/`SensorReadingsDLQ` en `infrastructure/serverless/queue` (mismo stack que ya alojaba las colas del batch).
+
+Pendiente:
+- Nuevo stack `backend/serverless/streaming`: un `AWS::IoT::TopicRule` (tópico MQTT `sensors/traffic/+/data` → esa SQS) + Lambda `PersistSensorReading` (batchSize 1) + su rol IAM.
+- Esquema de la lectura del sensor: `sensor_id`, `city`, `road`, `speed_avg`, `vehicle_count`, `recorded_at` — sin PII (no hay persona involucrada), así que no hace falta cifrado ni la capa `Security` para esta Lambda.
+- Persistencia en MongoDB Atlas: misma base `trafficMonitoring` ya usada, colección nueva `trafficSensorReadings`.
+- El "Thing"/certificado X.509/policy de prueba en IoT Core se crean **manualmente** (mismo criterio que las credenciales de Mongo o la llave PII), documentado como paso manual en el README de `backend`.
+- Simulación de sensores en desarrollo/demo: **`mosquitto_pub`** (cliente MQTT que se conecta con el certificado X.509 real del "Thing", requiere agregar el paquete `mosquitto-clients` al devcontainer de `backend`) en vez de `aws iot-data publish` (que usaría credenciales de IAM en vez de la autenticación real del dispositivo) — se prefirió `mosquitto_pub` por reproducir fielmente cómo se autenticaría un sensor real, de mayor valor pedagógico para el curso.
 
 ## Observabilidad
 
