@@ -6,7 +6,7 @@
 # needing an actual malformed file to make it through Lambda 1 and 2.
 #
 # Run inside the backend devcontainer (needs the AWS CLI + credentials):
-#   cd backend/tests && ./send_invalid_row_to_queue.sh
+#   cd backend/tests/batch && ./send_invalid_row_to_queue.sh
 set -e
 
 QUEUE_URL=$(aws ssm get-parameter \
