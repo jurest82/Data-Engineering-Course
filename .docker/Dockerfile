@@ -44,6 +44,11 @@ RUN useradd -ms $SHELL $USER
 RUN mkdir -p $VOLUME \
     && chown -R $USER:$USER $VOLUME
 
+# cfn-lint: ignore W3005 (redundant DependsOn already implied by GetAtt)
+RUN echo "ignore_checks:" > "$USER_HOME/.cfnlintrc" \
+    && echo "  - W3005" >> "$USER_HOME/.cfnlintrc" \
+    && chown $USER:$USER "$USER_HOME/.cfnlintrc"
+
 # Preserve bash history
 RUN SNIPPET="export PROMPT_COMMAND='history -a' && export HISTFILE=/commandhistory/.bash_history" \
     && echo $SNIPPET >> "/root/.bashrc" \
@@ -62,4 +67,5 @@ USER $USER
 ######## BACKEND IMAGE ########
 FROM img-base AS img-backend
 USER root
+RUN pip3 install boto3
 USER $USER
