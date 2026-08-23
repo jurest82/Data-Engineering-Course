@@ -1,7 +1,10 @@
 services:
   data-eng-course:
     container_name: 'DataEngCourse'
-    image: node:24-bookworm-slim
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: img-root
     volumes:
       - ..:/app
       - data-eng-course-bashhistory:/commandhistory

@@ -70,3 +70,10 @@ USER root
 RUN pip3 install boto3
 RUN apt-get install -y mosquitto-clients
 USER $USER
+
+######## ROOT IMAGE (monorepo-level tooling, e.g. architecture diagrams) ########
+FROM img-base AS img-root
+USER root
+RUN apt-get install -y graphviz
+RUN pip3 install diagrams
+USER $USER

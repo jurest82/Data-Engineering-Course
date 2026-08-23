@@ -3,7 +3,6 @@
   "dockerComposeFile": ".docker/docker-compose.yml",
   "service": "data-eng-course",
   "workspaceFolder": "/app",
-  "postCreateCommand": "apt-get update && apt-get install -y git && npm install -g @anthropic-ai/claude-code",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -28,7 +27,7 @@
         "editor.tabSize": 2,
         "cSpell.files": ["**/*.md"],
         "cSpell.language": "en,es",
-        "cSpell.words": ["Dockerized", "monorepository"],
+        "cSpell.words": ["Dockerized", "Medellín", "monorepository"],
         "git.autoRepositoryDetection": true,
         "json.format.enable": true,
         "[markdown]": {

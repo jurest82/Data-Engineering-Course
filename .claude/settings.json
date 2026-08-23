@@ -44,6 +44,7 @@
 
       "Bash(docker exec -w /app/backend DataEngCourseBackend npm run format)",
       "Bash(docker exec -w /app/infrastructure DataEngCourseInfrastructure npm run format)",
+      "Bash(docker exec -w /app/docs DataEngCourse python3 architecture.py)",
 
       "Bash(docker exec -w * DataEngCourseBackend find*)",
       "Bash(docker exec -w * DataEngCourseInfrastructure find*)",
