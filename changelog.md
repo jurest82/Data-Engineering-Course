@@ -29,3 +29,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Shared Python Lambda Layers, in their own stack: `Commons` (`openpyxl`), `Mongo` (`pymongo`), `Security` (`cryptography`)
   - Lambda deploy architecture (`x86_64`/`arm64`) resolved automatically to match the machine running the deploy
   - Test fixtures for both pipelines (`backend/tests/fixtures/batch/`, `backend/tests/fixtures/sensor_readings/`)
+  - Demo scripts (`backend/tests/batch/`, `backend/tests/sensor_readings/`): send an invalid row/reading straight to a queue to demo the dead-letter queue path, and provision a test IoT Core sensor certificate and publish a reading via MQTT with it
