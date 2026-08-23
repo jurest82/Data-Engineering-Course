@@ -54,7 +54,7 @@ Deployment order:
 2. Deploy `serverless/queue` stack (SQS queues and dead-letter queues, for the batch pipeline and for streaming sensor readings)
 3. Deploy `serverless/secrets` stack (Secrets Manager secret for MongoDB Atlas credentials, populated at deploy time from `MONGO_HOST`, `MONGO_USERNAME`, `MONGO_PASSWORD`, `MONGO_DBNAME`)
 4. Deploy `serverless/iot` stack (IoT Core policy and topic rule that routes sensor readings to the streaming queue; depends on `serverless/queue`)
-5. Deploy `serverless/alerts` stack (SNS topic with an email subscription, CloudWatch alarms on the batch pipeline's dead-letter queue and on `SplitAndEnqueue` Lambda errors, and an account-wide AWS Budget on cost; depends on `serverless/queue` **and** on `backend`'s `batch` stack already being deployed, see `backend/README.md`)
+5. Deploy `serverless/alerts` stack: SNS topic with an email subscription, an account-wide AWS Budget on cost, and CloudWatch alarms — on both pipelines' dead-letter queues (depend only on `serverless/queue` already being deployed) and on `SplitAndEnqueue` Lambda errors (depends on `backend`'s `batch` stack already being deployed, see `backend/README.md`)
 
 ### Remove
 
