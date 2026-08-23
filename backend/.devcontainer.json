@@ -35,7 +35,14 @@
             ]
           }
         ],
-        "cSpell.words": ["Dockerized", "monorepository"],
+        "cSpell.words": [
+          "cedula",
+          "Dockerized",
+          "Medellín",
+          "mongodb",
+          "monorepository",
+          "vehiculos"
+        ],
         "editor.codeActionsOnSave": {
           "source.fixAll.markdownlint": "explicit",
           "source.organizeImports": "explicit"
