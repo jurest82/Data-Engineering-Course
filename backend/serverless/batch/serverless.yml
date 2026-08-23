@@ -26,8 +26,6 @@ resources:
 
 functions: ${file(functions.yml)}
 
-layers: ${file(layers.yml)}
-
 plugins:
   - serverless-deployment-bucket
   - '@serverless/safeguards-plugin'
@@ -63,6 +61,10 @@ custom:
     rawReportsBucket:
       name: ${ssm:/${env:DEPLOY_APP}-storage/RawReportsBucketName}
       arn: ${ssm:/${env:DEPLOY_APP}-storage/RawReportsBucketArn}
+  layers:
+    commons: ${ssm:/${env:DEPLOY_APP}-backend-layers/CommonsLayerArn}
+    mongo: ${ssm:/${env:DEPLOY_APP}-backend-layers/MongoLayerArn}
+    security: ${ssm:/${env:DEPLOY_APP}-backend-layers/SecurityLayerArn}
   sqs:
     accidentReports:
       url: ${ssm:/${env:DEPLOY_APP}-queue/AccidentReportsQueueUrl}

@@ -1,0 +1,24 @@
+Resources:
+  CommonsLayerArn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/CommonsLayerArn
+      Tier: Standard
+      Type: String
+      Value: !Ref CommonsLambdaLayer
+
+  MongoLayerArn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/MongoLayerArn
+      Tier: Standard
+      Type: String
+      Value: !Ref MongoLambdaLayer
+
+  SecurityLayerArn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/SecurityLayerArn
+      Tier: Standard
+      Type: String
+      Value: !Ref SecurityLambdaLayer

@@ -47,12 +47,12 @@ At `.envs` folder, you'll need to create env files with the variables described 
 
 You can deploy `Cloud Formation Stacks` using `Serverless Framework` syntax: <https://www.serverless.com/framework/docs/providers/aws/cli-reference/deploy/>
 
-The whole backend (API Gateway, all Lambdas, their IAM roles) is a single stack, under `serverless/`:
+`backend` is split into multiple Serverless stacks, each under its own folder inside `serverless/` (`cd serverless/<stack> && serverless deploy --stage dev`).
 
-```
-cd serverless
-serverless deploy --stage dev
-```
+Deployment order:
+
+1. Deploy `serverless/layers` stack (shared Python Lambda Layers: `Commons`, `Mongo`, `Security`)
+2. Deploy `serverless/batch` stack (the batch accident reports pipeline: API Gateway, all 3 Lambdas, their IAM roles)
 
 ### Remove
 

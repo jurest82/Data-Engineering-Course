@@ -6,10 +6,10 @@ ValidateAndStore:
   memorySize: 256
   package:
     patterns:
-      - ../src/common/**
-      - ../src/validate_and_store/**
+      - ../../src/common/**
+      - ../../src/validate_and_store/**
   layers:
-    - !Ref CommonsLambdaLayer
+    - ${self:custom.layers.commons}
   environment:
     RAW_REPORTS_BUCKET_NAME: ${self:custom.s3.rawReportsBucket.name}
   events:
@@ -26,10 +26,10 @@ SplitAndEnqueue:
   memorySize: 256
   package:
     patterns:
-      - ../src/common/**
-      - ../src/split_and_enqueue/**
+      - ../../src/common/**
+      - ../../src/split_and_enqueue/**
   layers:
-    - !Ref CommonsLambdaLayer
+    - ${self:custom.layers.commons}
   environment:
     ACCIDENT_REPORTS_QUEUE_URL: ${self:custom.sqs.accidentReports.url}
   events:
@@ -48,11 +48,11 @@ ValidateAndPersist:
   memorySize: 256
   package:
     patterns:
-      - ../src/common/**
-      - ../src/validate_and_persist/**
+      - ../../src/common/**
+      - ../../src/validate_and_persist/**
   layers:
-    - !Ref MongoLambdaLayer
-    - !Ref SecurityLambdaLayer
+    - ${self:custom.layers.mongo}
+    - ${self:custom.layers.security}
   environment:
     MONGO_CREDENTIALS_SECRET_NAME: ${self:custom.secretsManager.mongoCredentials}
     PII_ENCRYPTION_KEY_SECRET_NAME: ${self:custom.secretsManager.piiEncryptionKey}
