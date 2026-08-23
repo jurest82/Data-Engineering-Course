@@ -1,0 +1,8 @@
+Resources:
+  SensorReadingsPolicyName:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/SensorReadingsPolicyName
+      Tier: Standard
+      Type: String
+      Value: !Ref SensorReadingsPolicy

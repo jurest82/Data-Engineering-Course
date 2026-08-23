@@ -1,0 +1,19 @@
+PersistSensorReading:
+  name: ${self:custom.servicePrefix}-PersistSensorReading
+  handler: src/persist_sensor_reading/handler.handler
+  role: !GetAtt PersistSensorReadingRole.Arn
+  timeout: 15
+  memorySize: 256
+  package:
+    patterns:
+      - ../../src/common/**
+      - ../../src/persist_sensor_reading/**
+  layers:
+    - ${self:custom.layers.mongo}
+  environment:
+    MONGO_CREDENTIALS_SECRET_NAME: ${self:custom.secretsManager.mongoCredentials}
+    SENSOR_READINGS_DLQ_URL: ${self:custom.sqs.sensorReadingsDLQ.url}
+  events:
+    - sqs:
+        arn: ${self:custom.sqs.sensorReadings.arn}
+        batchSize: 1
