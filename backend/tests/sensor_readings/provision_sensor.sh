@@ -6,7 +6,7 @@
 # certificate creation if one already exists locally for this sensor-id.
 #
 # Run inside the backend devcontainer (needs the AWS CLI + credentials):
-#   cd backend/tests/sensor_readings && ./provision_sensor.sh sensor-001
+#   cd tests/sensor_readings && ./provision_sensor.sh sensor-001
 set -e
 
 SENSOR_ID=$1

@@ -47,7 +47,7 @@ At `.envs` folder, you'll need to create env files with the variables described 
 
 You can deploy `Cloud Formation Stacks` using `Serverless Framework` syntax: <https://www.serverless.com/framework/docs/providers/aws/cli-reference/deploy/>
 
-`backend` is split into multiple Serverless stacks, each under its own folder inside `serverless/` (`cd serverless/<stack> && serverless deploy --stage dev`).
+`backend` is split into multiple Serverless stacks, each under its own folder inside `serverless/` (`cd serverless/<stack> && serverless deploy --stage {STAGE}`).
 
 Deployment order:
 
