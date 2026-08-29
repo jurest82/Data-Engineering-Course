@@ -1,0 +1,4 @@
+.serverless
+.DS_Store
+*.pyc
+python/

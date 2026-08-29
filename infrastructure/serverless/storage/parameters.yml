@@ -1,0 +1,16 @@
+Resources:
+  RawReportsBucketName:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/RawReportsBucketName
+      Tier: Standard
+      Type: String
+      Value: !Ref RawReportsBucket
+
+  RawReportsBucketArn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/RawReportsBucketArn
+      Tier: Standard
+      Type: String
+      Value: !GetAtt RawReportsBucket.Arn

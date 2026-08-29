@@ -1,0 +1,89 @@
+Resources:
+  ValidateAndStoreRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: ${self:custom.servicePrefix}-ValidateAndStore
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: ${self:custom.servicePrefix}-ValidateAndStore
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: s3:PutObject
+                Resource: ${self:custom.s3.rawReportsBucket.arn}/*
+
+  SplitAndEnqueueRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: ${self:custom.servicePrefix}-SplitAndEnqueue
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: ${self:custom.servicePrefix}-SplitAndEnqueue
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:DeleteObject
+                Resource: ${self:custom.s3.rawReportsBucket.arn}/uploads/*
+              - Effect: Allow
+                Action: s3:PutObject
+                Resource:
+                  - ${self:custom.s3.rawReportsBucket.arn}/processed/*
+                  - ${self:custom.s3.rawReportsBucket.arn}/failed/*
+              - Effect: Allow
+                Action: sqs:SendMessage
+                Resource: ${self:custom.sqs.accidentReports.arn}
+
+  ValidateAndPersistRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: ${self:custom.servicePrefix}-ValidateAndPersist
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: ${self:custom.servicePrefix}-ValidateAndPersist
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                  - sqs:GetQueueAttributes
+                Resource: ${self:custom.sqs.accidentReports.arn}
+              - Effect: Allow
+                Action: sqs:SendMessage
+                Resource: ${self:custom.sqs.accidentReportsDLQ.arn}
+              - Effect: Allow
+                Action: secretsmanager:GetSecretValue
+                Resource:
+                  - !Sub >-
+                    arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${self:custom.secretsManager.mongoCredentials}-*
+                  - !Sub >-
+                    arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${self:custom.secretsManager.piiEncryptionKey}-*

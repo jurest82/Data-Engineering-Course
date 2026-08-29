@@ -1,0 +1,75 @@
+{
+  "name": "data-eng-course-infrastructure",
+  "dockerComposeFile": ".docker/docker-compose.yml",
+  "service": "data_eng_course_infrastructure",
+  "workspaceFolder": "/app/infrastructure",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "aaron-bond.better-comments",
+        "davidanson.vscode-markdownlint",
+        "eeyore.yapf",
+        "esbenp.prettier-vscode",
+        "irongeek.vscode-env",
+        "mikestead.dotenv",
+        "ms-azuretools.vscode-docker",
+        "ms-python.isort",
+        "ms-python.pylint",
+        "ms-python.python",
+        "ms-vscode.live-server",
+        "streetsidesoftware.code-spell-checker",
+        "streetsidesoftware.code-spell-checker-spanish",
+        "ty4z2008.html-preview",
+        "threadheap.serverless-ide-vscode",
+        "yzhang.markdown-all-in-one"
+      ],
+      "settings": {
+        "cSpell.files": ["**/*.md", "**/*.py"],
+        "cSpell.language": "en,es",
+        "cSpell.languageSettings": [
+          {
+            "languageId": "python",
+            "ignoreRegExpList": [
+              "/^\\s*from.*import/gm" // Ignore imports
+            ]
+          }
+        ],
+        "cSpell.words": ["DBNAME", "Dockerized", "Fernet", "monorepository"],
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnPaste": true,
+        "editor.formatOnSave": true,
+        "editor.insertSpaces": true,
+        "editor.tabSize": 2,
+        "git.autoRepositoryDetection": true,
+        "git.openRepositoryInParentFolders": "always",
+        "json.format.enable": true,
+        "[markdown]": {
+          "editor.formatOnSave": true,
+          "editor.formatOnPaste": true,
+          "editor.defaultFormatter": "davidanson.vscode-markdownlint"
+        },
+        "python.analysis.typeCheckingMode": "basic",
+        "python.formatting.provider": "none",
+        "python.pythonPath": "/usr/local/bin/python3",
+        "[python]": {
+          "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+          },
+          "editor.formatOnSaveMode": "file",
+          "editor.formatOnSave": true,
+          "editor.defaultFormatter": "eeyore.yapf"
+        },
+        "serverlessIDE.cfnLint.path": "/usr/local/bin/cfn-lint",
+        "serverlessIDE.cfnLint.appendRules": ["cfn_lint_serverless.rules"],
+        "serverlessIDE.completion": true,
+        "serverlessIDE.hover": true,
+        "serverlessIDE.telemetry.enableTelemetry": false,
+        "serverlessIDE.validate": true,
+        "serverlessIDE.validationProvider": "cfn-lint",
+        "todo-tree.highlights.useColourScheme": true,
+        "yapf.interpreter": ["/usr/local/bin/python3"]
+      }
+    }
+  },
+  "postCreateCommand": "sed -i 's/\\r$//' .docker/entrypoint.sh && sudo chmod +x .docker/entrypoint.sh && .docker/entrypoint.sh"
+}

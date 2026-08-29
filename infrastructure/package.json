@@ -1,0 +1,14 @@
+{
+  "name": "data-eng-course-infrastructure",
+  "devDependencies": {
+    "@serverless/safeguards-plugin": "^1.2.1",
+    "serverless-deployment-bucket": "^1.6.0",
+    "prettier": "^3.9.6",
+    "eslint": "^10.8.1",
+    "eslint-config-prettier": "^10.1.8"
+  },
+  "scripts": {
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  }
+}
