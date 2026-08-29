@@ -27,7 +27,13 @@
         "editor.tabSize": 2,
         "cSpell.files": ["**/*.md"],
         "cSpell.language": "en,es",
-        "cSpell.words": ["Dockerized", "Medellín", "monorepository"],
+        "cSpell.words": [
+          "Dockerized",
+          "Medellín",
+          "monorepository",
+          "openpyxl",
+          "pymongo"
+        ],
         "git.autoRepositoryDetection": true,
         "json.format.enable": true,
         "[markdown]": {
