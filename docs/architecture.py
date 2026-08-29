@@ -102,7 +102,7 @@ with Diagram(
     mongo = MongoDB("MongoDB Atlas", height=NODE_H)
 
     dlq = SQS("AccidentReports\nDLQ", height=NODE_H)
-    cloudwatch = Cloudwatch("CloudWatch Alarms\n(DLQ + Lambda errors)", height=NODE_H)
+    cloudwatch = Cloudwatch("CloudWatch\nAlarms", height=NODE_H)
     sns = SNS("SNS Topic\n(email alerts)", height=NODE_H)
 
     client >> flow(label="POST Excel\n(base64, max 300 rows)") >> api_gw
@@ -119,6 +119,7 @@ with Diagram(
     queue >> loose(xlabel="redrive (maxReceiveCount 3)", style="dashed") >> dlq
 
     dlq >> alarm() >> cloudwatch
+    lambda2 >> alarm(xlabel="Errors metric", constraint="false") >> cloudwatch
     cloudwatch >> flow() >> sns
 
 
