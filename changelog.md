@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `SplitAndEnqueue` Lambda: re-validates the file from S3, splits it into one SQS message per row (`send_message_batch`), and moves it to `processed/` or `failed/` depending on the outcome
     - `ValidateAndPersist` Lambda: re-validates each row from SQS and saves the document to MongoDB Atlas, or forwards invalid rows to the dead-letter queue itself; encrypts PII fields (`involved_person_name`, `involved_person_id`) before saving
   - Streaming sensor readings pipeline:
-    - `PersistSensorReading` Lambda: re-validates each sensor reading from SQS (overriding the reading's own `sensor_id` with the trusted, topic-derived one) and saves it to MongoDB Atlas, or forwards invalid readings to the dead-letter queue itself
+    - `PersistSensorReading` Lambda: re-validates each sensor reading from SQS (deriving `sensor_id` entirely from the trusted, topic-derived identity, since the reading's own payload never carries one) and saves it to MongoDB Atlas, or forwards invalid readings to the dead-letter queue itself
   - Shared Python Lambda Layers, in their own stack: `Commons` (`openpyxl`), `Mongo` (`pymongo`), `Security` (`cryptography`)
   - Lambda deploy architecture (`x86_64`/`arm64`) resolved automatically to match the machine running the deploy
   - Test fixtures for both pipelines (`backend/tests/fixtures/batch/`, `backend/tests/fixtures/sensor_readings/`)

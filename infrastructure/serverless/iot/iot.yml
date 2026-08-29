@@ -63,8 +63,9 @@ Resources:
         # certificate's ThingName (iot:Publish is scoped to that topic). Added
         # as its own field (not "sensor_id" -- AWS IoT SQL doesn't document
         # how a naming collision with SELECT * would resolve) so the Lambda
-        # can use it to override the payload's own "sensor_id", which a
-        # sensor's JSON body could otherwise misreport.
+        # can use it as the reading's sensor_id -- the payload itself carries
+        # no such field, precisely so there's nothing client-controlled to
+        # misreport.
         Sql: "SELECT *, topic(3) AS thing_name FROM 'sensors/traffic/+/data'"
         AwsIotSqlVersion: '2016-03-23'
         RuleDisabled: false
