@@ -1,0 +1,77 @@
+service: backend-batch
+frameworkVersion: '^4.6.2'
+configValidationMode: error
+
+provider:
+  name: aws
+  stage: dev
+  region: us-east-1
+  runtime: python3.13
+  architecture: ${file(../architecture.js):get}
+  stackName: ${env:DEPLOY_APP}-${self:service}
+  deploymentBucket:
+    name: ${self:custom.s3.deploymentBucketName.${self:custom.stage}}
+  apiGateway:
+    apiKeys:
+      - ${self:custom.servicePrefix}-key
+
+package:
+  individually: true
+  patterns:
+    - '!./**'
+
+resources:
+  - ${file(iam.yml)}
+  - ${file(parameters.yml)}
+
+functions: ${file(functions.yml)}
+
+plugins:
+  - serverless-deployment-bucket
+  - '@serverless/safeguards-plugin'
+
+custom:
+  stage: ${opt:stage, self:provider.stage}
+  safeguards:
+    - safeguard: framework-version
+      enforcementLevel: warning
+      config: ${self:frameworkVersion}
+    - safeguard: allowed-regions
+      enforcementLevel: error
+      config:
+        - ${self:provider.region}
+    - safeguard: allowed-function-names
+      enforcementLevel: warning
+      config: ${self:custom.servicePrefix}-${FUNCTION}
+    - safeguard: no-wild-iam-role-statements
+      enforcementLevel: warning
+    - safeguard: allowed-stages
+      enforcementLevel: error
+      config:
+        - dev
+        - test
+        - prod
+  servicePrefix: ${env:DEPLOY_APP}-${self:service}
+  developer: ${env:DEVELOPER}
+  s3:
+    deploymentBucketName:
+      dev: ${self:provider.region}.cfn.${self:service}.${env:DEPLOY_APP}.${self:custom.stage}.${self:custom.developer}.deploys
+      test: ${self:provider.region}.cfn.${self:service}.${env:DEPLOY_APP}.${self:custom.stage}.deploys
+      prod: ${self:provider.region}.cfn.${self:service}.${env:DEPLOY_APP}.${self:custom.stage}.deploys
+    rawReportsBucket:
+      name: ${ssm:/${env:DEPLOY_APP}-storage/RawReportsBucketName}
+      arn: ${ssm:/${env:DEPLOY_APP}-storage/RawReportsBucketArn}
+  layers:
+    commons: ${ssm:/${env:DEPLOY_APP}-backend-layers/CommonsLayerArn}
+    mongo: ${ssm:/${env:DEPLOY_APP}-backend-layers/MongoLayerArn}
+    security: ${ssm:/${env:DEPLOY_APP}-backend-layers/SecurityLayerArn}
+  sqs:
+    accidentReports:
+      url: ${ssm:/${env:DEPLOY_APP}-queue/AccidentReportsQueueUrl}
+      arn: ${ssm:/${env:DEPLOY_APP}-queue/AccidentReportsQueueArn}
+    accidentReportsDLQ:
+      url: ${ssm:/${env:DEPLOY_APP}-queue/AccidentReportsDLQUrl}
+      arn: ${ssm:/${env:DEPLOY_APP}-queue/AccidentReportsDLQArn}
+  secretsManager:
+    mongoCredentials: /${env:DEPLOY_APP}-secrets/MongoCredentials
+    piiEncryptionKey: /${env:DEPLOY_APP}-secrets/PiiEncryptionKey

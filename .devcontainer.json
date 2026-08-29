@@ -1,0 +1,50 @@
+{
+  "name": "data-eng-course",
+  "dockerComposeFile": ".docker/docker-compose.yml",
+  "service": "data-eng-course",
+  "workspaceFolder": "/app",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "davidanson.vscode-markdownlint",
+        "eamodio.gitlens",
+        "esbenp.prettier-vscode",
+        "george-alisson.html-preview-vscode",
+        "irongeek.vscode-env",
+        "ms-azuretools.vscode-docker",
+        "streetsidesoftware.code-spell-checker",
+        "streetsidesoftware.code-spell-checker-spanish",
+        "yzhang.markdown-all-in-one"
+      ],
+      "settings": {
+        "editor.codeActionsOnSave": {
+          "source.fixAll.markdownlint": "explicit"
+        },
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnPaste": true,
+        "editor.formatOnSave": true,
+        "editor.insertSpaces": true,
+        "editor.tabSize": 2,
+        "cSpell.files": ["**/*.md"],
+        "cSpell.language": "en,es",
+        "cSpell.words": [
+          "Dockerized",
+          "Medellín",
+          "monorepository",
+          "openpyxl",
+          "pymongo"
+        ],
+        "git.autoRepositoryDetection": true,
+        "json.format.enable": true,
+        "[markdown]": {
+          "editor.formatOnSave": true,
+          "editor.formatOnPaste": true
+        },
+        "prettier.semi": false,
+        "prettier.singleQuote": true,
+        "prettier.tabWidth": 2,
+        "prettier.useTabs": false
+      }
+    }
+  }
+}

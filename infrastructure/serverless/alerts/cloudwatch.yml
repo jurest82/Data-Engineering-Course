@@ -1,0 +1,69 @@
+Resources:
+  AlertsTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: ${self:custom.servicePrefix}-${self:custom.stage}
+
+  AlertsTopicEmailSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      TopicArn: !Ref AlertsTopic
+      Protocol: email
+      Endpoint: ${self:custom.alerts.email}
+
+  AccidentReportsDLQMessagesAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: ${self:custom.servicePrefix}-dlq-messages-${self:custom.stage}
+      AlarmDescription: At least one message is visible in the accident reports dead-letter queue
+      Namespace: AWS/SQS
+      MetricName: ApproximateNumberOfMessagesVisible
+      Dimensions:
+        - Name: QueueName
+          Value: ${self:custom.sqs.accidentReportsDLQ.name}
+      Statistic: Maximum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref AlertsTopic
+
+  SensorReadingsDLQMessagesAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: ${self:custom.servicePrefix}-sensor-readings-dlq-messages-${self:custom.stage}
+      AlarmDescription: At least one message is visible in the sensor readings dead-letter queue
+      Namespace: AWS/SQS
+      MetricName: ApproximateNumberOfMessagesVisible
+      Dimensions:
+        - Name: QueueName
+          Value: ${self:custom.sqs.sensorReadingsDLQ.name}
+      Statistic: Maximum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref AlertsTopic
+
+  SplitAndEnqueueErrorsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: ${self:custom.servicePrefix}-split-and-enqueue-errors-${self:custom.stage}
+      AlarmDescription: The SplitAndEnqueue Lambda raised at least one error
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Dimensions:
+        - Name: FunctionName
+          Value: ${self:custom.lambda.splitAndEnqueue.name}
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref AlertsTopic
