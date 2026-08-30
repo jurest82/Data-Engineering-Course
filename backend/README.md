@@ -6,6 +6,8 @@
     - [Development container](#development-container)
     - [Environment variables](#environment-variables)
     - [Dependencies](#dependencies)
+    - [Database migrations](#database-migrations)
+    - [Database seeding](#database-seeding)
     - [Deployment](#deployment)
     - [Remove](#remove)
   - [Contribution guidelines](#contribution-guidelines)
@@ -43,6 +45,18 @@ At `.envs` folder, you'll need to create env files with the variables described 
 
 `serverless` user must be created using `IAM` at `AWS Organization account`, and it's credentials configured in `../.envs/aws.env`.
 
+### Database migrations
+
+To apply pending migrations, run `database/migrations/migrate.sh`. By default the script assumes an upgrade action; add `--downgrade` to revert instead.
+
+To add a new migration, create a file in `database/migrations/migrations/` inheriting from `mongodb_migrations.base.BaseMigration` and implementing `upgrade`/`downgrade`. Applied migrations are tracked in the `migrationLogs` collection.
+
+### Database seeding
+
+To seed both collections with realistic synthetic data, run `database/seeders/seed.sh`.
+
+Only `dev` and `test` stages are allowed to run seeders (checked against the `MongoCredentials` secret's `STAGE` tag); any other stage skips the process even if run accidentally.
+
 ### Deployment
 
 You can deploy `Cloud Formation Stacks` using `Serverless Framework` syntax: <https://www.serverless.com/framework/docs/providers/aws/cli-reference/deploy/>
@@ -54,6 +68,8 @@ Deployment order:
 1. Deploy `serverless/layers` stack (shared Python Lambda Layers: `Commons`, `Mongo`, `Security`)
 2. Deploy `serverless/batch` stack (the batch accident reports pipeline: API Gateway, all 3 Lambdas, their IAM roles)
 3. Deploy `serverless/streaming` stack (the `PersistSensorReading` Lambda and its IAM role, for the streaming sensor readings pipeline; depends on `serverless/layers` and on `infrastructure`'s `queue` and `secrets` stacks already being deployed)
+4. [Apply database migrations](#database-migrations)
+5. Optionally, [run database seeders](#database-seeding)
 
 ### Remove
 

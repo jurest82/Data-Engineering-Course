@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.2] - 29/08/2026
+
+### Added
+
+- `infrastructure` subproject:
+  - Single-instance, publicly accessible PostgreSQL RDS instance for a future ETL out of MongoDB Atlas (`rds`), using the account's default VPC instead of a dedicated one and auto-generated master credentials in Secrets Manager
+- `backend` subproject:
+  - Realistic synthetic data seeder for `accidentReports`/`trafficSensorReadings` (`backend/database/seeders/`), guarded to only run against `dev`/`test`
+  - Index migrations for both collections, tracked via the `mongodb-migrations` package in an auditable `migrationLogs` collection (`backend/database/migrations/`)
+  - A classroom demo (`backend/database/demo_indexes.py`) showing the `explain()` plan before/after an index, with the speedup made explicit
+
 ## [0.0.1] - 29/08/2026
 
 ### Added
