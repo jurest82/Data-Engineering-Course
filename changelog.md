@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [x.x.x] - dd/mm/yyyy
+
+### Added
+
+- `backend` subproject:
+  - Realistic synthetic data seeder for `accidentReports`/`trafficSensorReadings` (`backend/database/seeders/`), guarded to only run against `dev`/`test`
+  - Index migrations for both collections, tracked via the `mongodb-migrations` package in an auditable `migrationLogs` collection (`backend/database/migrations/`)
+  - A classroom demo (`backend/database/demo_indexes.py`) showing the `explain()` plan before/after an index, with the speedup made explicit
+
 ## [0.0.1] - 29/08/2026
 
 ### Added

@@ -36,11 +36,16 @@
           }
         ],
         "cSpell.words": [
+          "Boyacá",
           "cedula",
+          "COLLSCAN",
           "Dockerized",
+          "IXSCAN",
           "Medellín",
+          "millis",
           "mongodb",
           "monorepository",
+          "numerify",
           "vehiculos"
         ],
         "editor.codeActionsOnSave": {
