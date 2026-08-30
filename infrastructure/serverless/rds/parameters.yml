@@ -1,0 +1,24 @@
+Resources:
+  TrafficMonitoringMasterSecretArn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/TrafficMonitoringMasterSecretArn
+      Tier: Standard
+      Type: String
+      Value: !Ref TrafficMonitoringMasterSecret
+
+  TrafficMonitoringMasterSecretName:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/TrafficMonitoringMasterSecretName
+      Tier: Standard
+      Type: String
+      Value: !Sub /${self:custom.servicePrefix}/MasterCredentials
+
+  TrafficMonitoringDBInstanceEndpoint:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/TrafficMonitoringDBInstanceEndpoint
+      Tier: Standard
+      Type: String
+      Value: !GetAtt TrafficMonitoringDBInstance.Endpoint.Address
