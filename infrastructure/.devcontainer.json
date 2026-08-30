@@ -34,7 +34,13 @@
             ]
           }
         ],
-        "cSpell.words": ["DBNAME", "Dockerized", "Fernet", "monorepository"],
+        "cSpell.words": [
+          "DBNAME",
+          "Dockerized",
+          "Fernet",
+          "monorepository",
+          "urlsafe"
+        ],
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.formatOnPaste": true,
         "editor.formatOnSave": true,
