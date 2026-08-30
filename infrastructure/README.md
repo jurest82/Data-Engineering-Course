@@ -89,7 +89,6 @@ Stacks are independent, but still, recommended remove order is inverse to deploy
 
 ### AWS environment variables: `../.envs/aws.env`
 
-- `AWS_ORGANIZATION_ID`: ID of the AWS Organization that will be able to communicate with the account where this service is deployed.
 - `AWS_ACCESS_KEY_ID`: _Access Key_ used to deploy Cloud Formation stack to AWS cloud. The owner of the _Access Key_ need to have sufficient IAM permissions to perform the deployment process.
 - `AWS_SECRET_ACCESS_KEY`: _Secret Access Key_ that matches the _Access Key_
 - `AWS_DEFAULT_REGION`: Region where you intend to deploy the stack
