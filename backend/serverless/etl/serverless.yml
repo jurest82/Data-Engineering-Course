@@ -1,4 +1,4 @@
-service: backend-streaming
+service: backend-etl
 frameworkVersion: '^4.6.2'
 configValidationMode: error
 
@@ -54,17 +54,39 @@ custom:
       dev: ${self:provider.region}.cfn.${self:service}.${env:DEPLOY_APP}.${self:custom.stage}.${self:custom.developer}.deploys
       test: ${self:provider.region}.cfn.${self:service}.${env:DEPLOY_APP}.${self:custom.stage}.deploys
       prod: ${self:provider.region}.cfn.${self:service}.${env:DEPLOY_APP}.${self:custom.stage}.deploys
-  sqs:
-    sensorReadings:
-      url: ${ssm:/${env:DEPLOY_APP}-queue/SensorReadingsQueueUrl}
-      arn: ${ssm:/${env:DEPLOY_APP}-queue/SensorReadingsQueueArn}
-    sensorReadingsDLQ:
-      url: ${ssm:/${env:DEPLOY_APP}-queue/SensorReadingsDLQUrl}
-      arn: ${ssm:/${env:DEPLOY_APP}-queue/SensorReadingsDLQArn}
   layers:
     mongo: ${ssm:/${env:DEPLOY_APP}-backend-layers/MongoLayerArn}
+    postgresql: ${ssm:/${env:DEPLOY_APP}-backend-layers/PostgresqlLayerArn}
   secretsManager:
     mongoCredentials: /${env:DEPLOY_APP}-secrets/MongoCredentials
+    rdsCredentials: /${env:DEPLOY_APP}-rds/MasterCredentials
+  sqs:
+    accidentReportsExtractor:
+      url: ${ssm:/${env:DEPLOY_APP}-etl/AccidentReportsExtractorQueueUrl}
+      arn: ${ssm:/${env:DEPLOY_APP}-etl/AccidentReportsExtractorQueueArn}
+    accidentReportsDispatcher:
+      url: ${ssm:/${env:DEPLOY_APP}-etl/AccidentReportsDispatcherQueueUrl}
+      arn: ${ssm:/${env:DEPLOY_APP}-etl/AccidentReportsDispatcherQueueArn}
+    accidentReportsTransformer:
+      url: ${ssm:/${env:DEPLOY_APP}-etl/AccidentReportsTransformerQueueUrl}
+      arn: ${ssm:/${env:DEPLOY_APP}-etl/AccidentReportsTransformerQueueArn}
+    accidentReportsTransformerDLQ:
+      url: ${ssm:/${env:DEPLOY_APP}-etl/AccidentReportsTransformerDLQUrl}
+      arn: ${ssm:/${env:DEPLOY_APP}-etl/AccidentReportsTransformerDLQArn}
+    sensorReadingsExtractor:
+      url: ${ssm:/${env:DEPLOY_APP}-etl/SensorReadingsExtractorQueueUrl}
+      arn: ${ssm:/${env:DEPLOY_APP}-etl/SensorReadingsExtractorQueueArn}
+    sensorReadingsDispatcher:
+      url: ${ssm:/${env:DEPLOY_APP}-etl/SensorReadingsDispatcherQueueUrl}
+      arn: ${ssm:/${env:DEPLOY_APP}-etl/SensorReadingsDispatcherQueueArn}
+    sensorReadingsTransformer:
+      url: ${ssm:/${env:DEPLOY_APP}-etl/SensorReadingsTransformerQueueUrl}
+      arn: ${ssm:/${env:DEPLOY_APP}-etl/SensorReadingsTransformerQueueArn}
+    sensorReadingsTransformerDLQ:
+      url: ${ssm:/${env:DEPLOY_APP}-etl/SensorReadingsTransformerDLQUrl}
+      arn: ${ssm:/${env:DEPLOY_APP}-etl/SensorReadingsTransformerDLQArn}
   sns:
+    accidentReportsEtl:
+      arn: ${ssm:/${env:DEPLOY_APP}-etl/AccidentReportsEtlTopicArn}
     sensorReadingsEtl:
       arn: ${ssm:/${env:DEPLOY_APP}-etl/SensorReadingsEtlTopicArn}

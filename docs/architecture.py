@@ -11,6 +11,7 @@ enclose any edge that arcs above its nodes, which shows up as dead space.
 
 from diagrams import Diagram, Edge
 from diagrams.aws.compute import Lambda
+from diagrams.aws.database import RDS
 from diagrams.aws.integration import SNS, SQS
 from diagrams.aws.iot import IotCore, IotSensor
 from diagrams.aws.management import Cloudwatch
@@ -159,3 +160,59 @@ with Diagram(
 
     dlq >> alarm() >> cloudwatch
     cloudwatch >> flow() >> sns
+
+
+with Diagram(
+        "ETL pipeline - MongoDB Atlas to RDS PostgreSQL\n(one chain per domain: accidentReports, sensorReadings)",
+        filename="architecture_etl",
+        show=False,
+        direction="LR",
+        graph_attr=graph_attr,
+        node_attr=node_attr,
+        edge_attr=edge_attr,
+):
+    # Declared before the chain so they rank above it, same reason as the
+    # other two diagrams: keeps these converging edges from crossing the
+    # DLQs below.
+    mongo_secrets = SecretsManager("Secrets Manager\n(Mongo)", height=NODE_H)
+    rds_secrets = SecretsManager("Secrets Manager\n(RDS)", height=NODE_H)
+    live = Lambda("ValidateAndPersist /\nPersistSensorReading", height=NODE_H)
+
+    manual = User("Manual invoke", height=NODE_H)
+    generator = Lambda("Generator", height=NODE_H)
+    extractor_queue = SQS("Extractor\nQueue", height=NODE_H)
+    extractor = Lambda("Extractor", height=NODE_H)
+    dispatcher_queue = SQS("Dispatcher\nQueue", height=NODE_H)
+    dispatcher = Lambda("Dispatcher", height=NODE_H)
+    topic = SNS("ETL Topic", height=NODE_H)
+    transformer_queue = SQS("Transformer\nQueue", height=NODE_H)
+    transformer = Lambda("Transformer", height=NODE_H)
+    rds = RDS("RDS PostgreSQL\n(default VPC)", height=NODE_H)
+
+    mongo = MongoDB("MongoDB Atlas", height=NODE_H)
+    extractor_dlq = SQS("Extractor\nDLQ", height=NODE_H)
+    dispatcher_dlq = SQS("Dispatcher\nDLQ", height=NODE_H)
+    transformer_dlq = SQS("Transformer\nDLQ", height=NODE_H)
+
+    manual >> flow(label="backfill\n(aws lambda invoke)") >> generator
+    generator >> flow(label="{skip, limit}\nper batch") >> extractor_queue
+    extractor_queue >> flow() >> extractor
+    extractor >> flow(label="1 document\nper message") >> dispatcher_queue
+    dispatcher_queue >> flow() >> dispatcher
+    dispatcher >> flow(label="action=generated") >> topic
+    topic >> flow() >> transformer_queue
+    transformer_queue >> flow() >> transformer
+    transformer >> flow(label="upsert by id") >> rds
+
+    mongo >> support(xlabel="count", weight="15") >> generator
+    mongo >> support(xlabel="read page", weight="15") >> extractor
+    mongo_secrets >> support(xlabel="credentials", weight="30") >> generator
+    mongo_secrets >> support(xlabel="credentials", weight="30") >> extractor
+    rds_secrets >> support(xlabel="credentials") >> transformer
+
+    live >> branch(xlabel="action=created", style="dashed") >> topic
+    transformer >> branch(xlabel="invalid document", style="dashed") >> transformer_dlq
+
+    extractor_queue >> branch(label="redrive", style="dashed") >> extractor_dlq
+    dispatcher_queue >> branch(label="redrive", style="dashed") >> dispatcher_dlq
+    transformer_queue >> branch(xlabel="redrive", style="dashed") >> transformer_dlq

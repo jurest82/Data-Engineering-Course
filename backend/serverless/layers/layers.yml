@@ -21,3 +21,11 @@ Security:
       - '!./**'
       - python/**
   path: ../../src/layers/security
+
+Postgresql:
+  name: ${self:custom.servicePrefix}-Postgresql
+  package:
+    patterns:
+      - '!./**'
+      - python/**
+  path: ../../src/layers/postgresql

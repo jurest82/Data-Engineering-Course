@@ -46,6 +46,7 @@
           "mongodb",
           "monorepository",
           "numerify",
+          "upserts",
           "vehiculos"
         ],
         "editor.codeActionsOnSave": {

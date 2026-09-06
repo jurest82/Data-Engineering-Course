@@ -44,6 +44,9 @@ RUN useradd -ms $SHELL $USER
 RUN mkdir -p $VOLUME \
     && chown -R $USER:$USER $VOLUME
 
+# Let non-root user self-update global npm packages (serverless, claude-code) at runtime
+RUN chown -R $USER:$USER /usr/local/lib/node_modules /usr/local/bin
+
 # cfn-lint: ignore W3005 (redundant DependsOn already implied by GetAtt)
 RUN echo "ignore_checks:" > "$USER_HOME/.cfnlintrc" \
     && echo "  - W3005" >> "$USER_HOME/.cfnlintrc" \
@@ -70,6 +73,7 @@ USER root
 RUN pip3 install boto3
 RUN pip3 install Faker
 RUN pip3 install mongodb-migrations
+RUN pip3 install yoyo-migrations
 RUN apt-get install -y mosquitto-clients
 USER $USER
 

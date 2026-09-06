@@ -87,3 +87,6 @@ Resources:
                     arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${self:custom.secretsManager.mongoCredentials}-*
                   - !Sub >-
                     arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${self:custom.secretsManager.piiEncryptionKey}-*
+              - Effect: Allow
+                Action: sns:Publish
+                Resource: ${self:custom.sns.accidentReportsEtl.arn}

@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [x.x.x] - dd/mm/yyyy
+
+### Added
+
+- `infrastructure` subproject:
+  - SQS queues/dead-letter queues and SNS topics for the ETL's two domain pipelines (`accidentReports`, `sensorReadings`), one queue per stage (Extractor, Dispatcher, Transformer) (`etl`)
+- `backend` subproject:
+  - Normalized PostgreSQL schema for the ETL out of MongoDB Atlas (`cities`/`severities`/`roads`/`sensors` dimension tables, `accident_reports`/`sensor_readings` fact tables, no PII columns), with migrations in `backend/database/rds/` applied via `yoyo-migrations`
+  - Indexes on `accident_reports` (`city_id`, `occurred_at`) and `sensor_readings` (`sensor_id`, `recorded_at`), mirroring the same two query patterns already indexed on the Mongo side
+  - `Postgresql` Lambda Layer (`psycopg2-binary`) and a shared connection helper (`backend/src/common/postgres.py`)
+  - ETL pipeline (`backend/serverless/etl`), one chain per domain (`accidentReports`, `sensorReadings`): a manually-invoked Generator/Extractor/Dispatcher chain backfills from MongoDB Atlas, and a Transformer normalizes each document and upserts it into RDS
+  - `ValidateAndPersist`/`PersistSensorReading` now publish to the ETL right after persisting to MongoDB Atlas, so new records are copied automatically (best-effort, converges on the same Transformer as the backfill)
+- Architecture diagram for the ETL pipeline (`docs/architecture_etl.png`)
+
 ## [0.0.2] - 29/08/2026
 
 ### Added
