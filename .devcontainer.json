@@ -28,11 +28,19 @@
         "cSpell.files": ["**/*.md"],
         "cSpell.language": "en,es",
         "cSpell.words": [
+          "cedula",
+          "dbname",
           "Dockerized",
+          "graphviz",
+          "isort",
           "Medellín",
           "monorepository",
+          "mosquitto",
           "openpyxl",
-          "pymongo"
+          "pymongo",
+          "PYTHONPATH",
+          "vehiculos",
+          "yapf"
         ],
         "git.autoRepositoryDetection": true,
         "json.format.enable": true,
