@@ -37,10 +37,14 @@
           "monorepository",
           "mosquitto",
           "openpyxl",
+          "postgres",
+          "psycopg2",
           "pymongo",
           "PYTHONPATH",
+          "upserts",
           "vehiculos",
-          "yapf"
+          "yapf",
+          "yoyo"
         ],
         "git.autoRepositoryDetection": true,
         "json.format.enable": true,
