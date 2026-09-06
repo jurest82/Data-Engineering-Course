@@ -75,3 +75,6 @@ custom:
   secretsManager:
     mongoCredentials: /${env:DEPLOY_APP}-secrets/MongoCredentials
     piiEncryptionKey: /${env:DEPLOY_APP}-secrets/PiiEncryptionKey
+  sns:
+    accidentReportsEtl:
+      arn: ${ssm:/${env:DEPLOY_APP}-etl/AccidentReportsEtlTopicArn}

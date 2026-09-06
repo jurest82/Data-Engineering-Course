@@ -6,14 +6,30 @@ import boto3
 
 from src.common import mongo
 from src.common.accident_reports import validate_row
+from src.common.etl import publish_to_etl
 from src.validate_and_persist import pii
 
 sqs_client = boto3.client('sqs')
+sns_client = boto3.client('sns')
 
 MONGO_CREDENTIALS_SECRET_NAME = os.environ['MONGO_CREDENTIALS_SECRET_NAME']
 ACCIDENT_REPORTS_DLQ_URL = os.environ['ACCIDENT_REPORTS_DLQ_URL']
+ACCIDENT_REPORTS_ETL_TOPIC_ARN = os.environ['ACCIDENT_REPORTS_ETL_TOPIC_ARN']
 
 MONGO_COLLECTION_NAME = 'accidentReports'
+
+# Must match what the backfill's Extractor sends, for both paths to converge.
+ETL_FIELDS = (
+    'occurred_at',
+    'city',
+    'road',
+    'severity',
+    'vehicles_involved',
+    'source_s3_key',
+    'row_number',
+    'created_at',
+    'updated_at',
+)
 
 
 def handler(event, context):
@@ -38,7 +54,9 @@ def _process_record(record):
 
     collection = mongo.get_collection(MONGO_CREDENTIALS_SECRET_NAME,
                                       MONGO_COLLECTION_NAME)
-    collection.insert_one(document)
+    result = collection.insert_one(document)
+    publish_to_etl(sns_client, ACCIDENT_REPORTS_ETL_TOPIC_ARN, document,
+                   result.inserted_id, ETL_FIELDS)
 
 
 def _send_to_dlq(row, errors):

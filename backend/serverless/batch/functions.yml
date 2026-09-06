@@ -57,6 +57,7 @@ ValidateAndPersist:
     MONGO_CREDENTIALS_SECRET_NAME: ${self:custom.secretsManager.mongoCredentials}
     PII_ENCRYPTION_KEY_SECRET_NAME: ${self:custom.secretsManager.piiEncryptionKey}
     ACCIDENT_REPORTS_DLQ_URL: ${self:custom.sqs.accidentReportsDLQ.url}
+    ACCIDENT_REPORTS_ETL_TOPIC_ARN: ${self:custom.sns.accidentReportsEtl.arn}
   events:
     - sqs:
         arn: ${self:custom.sqs.accidentReports.arn}

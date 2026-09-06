@@ -65,3 +65,6 @@ custom:
     mongo: ${ssm:/${env:DEPLOY_APP}-backend-layers/MongoLayerArn}
   secretsManager:
     mongoCredentials: /${env:DEPLOY_APP}-secrets/MongoCredentials
+  sns:
+    sensorReadingsEtl:
+      arn: ${ssm:/${env:DEPLOY_APP}-etl/SensorReadingsEtlTopicArn}
