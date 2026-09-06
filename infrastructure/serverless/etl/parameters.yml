@@ -1,0 +1,256 @@
+Resources:
+  AccidentReportsExtractorQueueUrl:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/AccidentReportsExtractorQueueUrl
+      Tier: Standard
+      Type: String
+      Value: !Ref AccidentReportsExtractorQueue
+
+  AccidentReportsExtractorQueueArn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/AccidentReportsExtractorQueueArn
+      Tier: Standard
+      Type: String
+      Value: !GetAtt AccidentReportsExtractorQueue.Arn
+
+  AccidentReportsExtractorDLQName:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/AccidentReportsExtractorDLQName
+      Tier: Standard
+      Type: String
+      Value: ${self:custom.etl.accidentReports.extractor.dlqName.${self:custom.stage}}
+
+  AccidentReportsExtractorDLQUrl:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/AccidentReportsExtractorDLQUrl
+      Tier: Standard
+      Type: String
+      Value: !Ref AccidentReportsExtractorDLQ
+
+  AccidentReportsExtractorDLQArn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/AccidentReportsExtractorDLQArn
+      Tier: Standard
+      Type: String
+      Value: !GetAtt AccidentReportsExtractorDLQ.Arn
+
+  AccidentReportsDispatcherQueueUrl:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/AccidentReportsDispatcherQueueUrl
+      Tier: Standard
+      Type: String
+      Value: !Ref AccidentReportsDispatcherQueue
+
+  AccidentReportsDispatcherQueueArn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/AccidentReportsDispatcherQueueArn
+      Tier: Standard
+      Type: String
+      Value: !GetAtt AccidentReportsDispatcherQueue.Arn
+
+  AccidentReportsDispatcherDLQName:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/AccidentReportsDispatcherDLQName
+      Tier: Standard
+      Type: String
+      Value: ${self:custom.etl.accidentReports.dispatcher.dlqName.${self:custom.stage}}
+
+  AccidentReportsDispatcherDLQUrl:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/AccidentReportsDispatcherDLQUrl
+      Tier: Standard
+      Type: String
+      Value: !Ref AccidentReportsDispatcherDLQ
+
+  AccidentReportsDispatcherDLQArn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/AccidentReportsDispatcherDLQArn
+      Tier: Standard
+      Type: String
+      Value: !GetAtt AccidentReportsDispatcherDLQ.Arn
+
+  AccidentReportsTransformerQueueUrl:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/AccidentReportsTransformerQueueUrl
+      Tier: Standard
+      Type: String
+      Value: !Ref AccidentReportsTransformerQueue
+
+  AccidentReportsTransformerQueueArn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/AccidentReportsTransformerQueueArn
+      Tier: Standard
+      Type: String
+      Value: !GetAtt AccidentReportsTransformerQueue.Arn
+
+  AccidentReportsTransformerDLQName:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/AccidentReportsTransformerDLQName
+      Tier: Standard
+      Type: String
+      Value: ${self:custom.etl.accidentReports.transformer.dlqName.${self:custom.stage}}
+
+  AccidentReportsTransformerDLQUrl:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/AccidentReportsTransformerDLQUrl
+      Tier: Standard
+      Type: String
+      Value: !Ref AccidentReportsTransformerDLQ
+
+  AccidentReportsTransformerDLQArn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/AccidentReportsTransformerDLQArn
+      Tier: Standard
+      Type: String
+      Value: !GetAtt AccidentReportsTransformerDLQ.Arn
+
+  AccidentReportsEtlTopicArn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/AccidentReportsEtlTopicArn
+      Tier: Standard
+      Type: String
+      Value: !Ref AccidentReportsEtlTopic
+
+  SensorReadingsExtractorQueueUrl:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/SensorReadingsExtractorQueueUrl
+      Tier: Standard
+      Type: String
+      Value: !Ref SensorReadingsExtractorQueue
+
+  SensorReadingsExtractorQueueArn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/SensorReadingsExtractorQueueArn
+      Tier: Standard
+      Type: String
+      Value: !GetAtt SensorReadingsExtractorQueue.Arn
+
+  SensorReadingsExtractorDLQName:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/SensorReadingsExtractorDLQName
+      Tier: Standard
+      Type: String
+      Value: ${self:custom.etl.sensorReadings.extractor.dlqName.${self:custom.stage}}
+
+  SensorReadingsExtractorDLQUrl:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/SensorReadingsExtractorDLQUrl
+      Tier: Standard
+      Type: String
+      Value: !Ref SensorReadingsExtractorDLQ
+
+  SensorReadingsExtractorDLQArn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/SensorReadingsExtractorDLQArn
+      Tier: Standard
+      Type: String
+      Value: !GetAtt SensorReadingsExtractorDLQ.Arn
+
+  SensorReadingsDispatcherQueueUrl:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/SensorReadingsDispatcherQueueUrl
+      Tier: Standard
+      Type: String
+      Value: !Ref SensorReadingsDispatcherQueue
+
+  SensorReadingsDispatcherQueueArn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/SensorReadingsDispatcherQueueArn
+      Tier: Standard
+      Type: String
+      Value: !GetAtt SensorReadingsDispatcherQueue.Arn
+
+  SensorReadingsDispatcherDLQName:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/SensorReadingsDispatcherDLQName
+      Tier: Standard
+      Type: String
+      Value: ${self:custom.etl.sensorReadings.dispatcher.dlqName.${self:custom.stage}}
+
+  SensorReadingsDispatcherDLQUrl:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/SensorReadingsDispatcherDLQUrl
+      Tier: Standard
+      Type: String
+      Value: !Ref SensorReadingsDispatcherDLQ
+
+  SensorReadingsDispatcherDLQArn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/SensorReadingsDispatcherDLQArn
+      Tier: Standard
+      Type: String
+      Value: !GetAtt SensorReadingsDispatcherDLQ.Arn
+
+  SensorReadingsTransformerQueueUrl:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/SensorReadingsTransformerQueueUrl
+      Tier: Standard
+      Type: String
+      Value: !Ref SensorReadingsTransformerQueue
+
+  SensorReadingsTransformerQueueArn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/SensorReadingsTransformerQueueArn
+      Tier: Standard
+      Type: String
+      Value: !GetAtt SensorReadingsTransformerQueue.Arn
+
+  SensorReadingsTransformerDLQName:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/SensorReadingsTransformerDLQName
+      Tier: Standard
+      Type: String
+      Value: ${self:custom.etl.sensorReadings.transformer.dlqName.${self:custom.stage}}
+
+  SensorReadingsTransformerDLQUrl:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/SensorReadingsTransformerDLQUrl
+      Tier: Standard
+      Type: String
+      Value: !Ref SensorReadingsTransformerDLQ
+
+  SensorReadingsTransformerDLQArn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/SensorReadingsTransformerDLQArn
+      Tier: Standard
+      Type: String
+      Value: !GetAtt SensorReadingsTransformerDLQ.Arn
+
+  SensorReadingsEtlTopicArn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/SensorReadingsEtlTopicArn
+      Tier: Standard
+      Type: String
+      Value: !Ref SensorReadingsEtlTopic

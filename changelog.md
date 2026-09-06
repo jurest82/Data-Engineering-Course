@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `infrastructure` subproject:
+  - SQS queues/dead-letter queues and SNS topics for the future ETL's two domain pipelines (`accidentReports`, `sensorReadings`), one queue per stage (Extractor, Dispatcher, Transformer) (`etl`)
 - `backend` subproject:
   - Normalized PostgreSQL schema for the future ETL out of MongoDB Atlas (`cities`/`severities`/`roads`/`sensors` dimension tables, `accident_reports`/`sensor_readings` fact tables, no PII columns), with migrations in `backend/database/rds/` applied via `yoyo-migrations`
   - `Postgresql` Lambda Layer (`psycopg2-binary`) and a shared connection helper (`backend/src/common/postgres.py`), ready for the future ETL

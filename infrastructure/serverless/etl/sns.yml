@@ -1,0 +1,66 @@
+Resources:
+  AccidentReportsEtlTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: ${self:custom.etl.accidentReports.topicName.${self:custom.stage}}
+
+  AccidentReportsTransformerQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Resource: !GetAtt AccidentReportsTransformerQueue.Arn
+            Action: SQS:SendMessage
+            Condition:
+              ArnLike:
+                aws:SourceArn: !Ref AccidentReportsEtlTopic
+      Queues:
+        - !Ref AccidentReportsTransformerQueue
+
+  AccidentReportsTransformerQueueSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      RawMessageDelivery: true
+      Endpoint: !GetAtt AccidentReportsTransformerQueue.Arn
+      Protocol: sqs
+      TopicArn: !Ref AccidentReportsEtlTopic
+      FilterPolicy:
+        action:
+          - generated
+          - created
+
+  SensorReadingsEtlTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: ${self:custom.etl.sensorReadings.topicName.${self:custom.stage}}
+
+  SensorReadingsTransformerQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Resource: !GetAtt SensorReadingsTransformerQueue.Arn
+            Action: SQS:SendMessage
+            Condition:
+              ArnLike:
+                aws:SourceArn: !Ref SensorReadingsEtlTopic
+      Queues:
+        - !Ref SensorReadingsTransformerQueue
+
+  SensorReadingsTransformerQueueSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      RawMessageDelivery: true
+      Endpoint: !GetAtt SensorReadingsTransformerQueue.Arn
+      Protocol: sqs
+      TopicArn: !Ref SensorReadingsEtlTopic
+      FilterPolicy:
+        action:
+          - generated
+          - created
