@@ -1,0 +1,145 @@
+AccidentReportsGenerator:
+  name: ${self:custom.servicePrefix}-AccidentReportsGenerator
+  handler: src/accident_reports_generator/handler.handler
+  role: !GetAtt AccidentReportsGeneratorRole.Arn
+  timeout: 60
+  memorySize: 256
+  package:
+    patterns:
+      - ../../src/common/**
+      - ../../src/accident_reports_generator/**
+  layers:
+    - ${self:custom.layers.mongo}
+  environment:
+    MONGO_CREDENTIALS_SECRET_NAME: ${self:custom.secretsManager.mongoCredentials}
+    EXTRACTOR_QUEUE_URL: ${self:custom.sqs.accidentReportsExtractor.url}
+
+AccidentReportsExtractor:
+  name: ${self:custom.servicePrefix}-AccidentReportsExtractor
+  handler: src/accident_reports_extractor/handler.handler
+  role: !GetAtt AccidentReportsExtractorRole.Arn
+  timeout: 60
+  memorySize: 256
+  package:
+    patterns:
+      - ../../src/common/**
+      - ../../src/accident_reports_extractor/**
+  layers:
+    - ${self:custom.layers.mongo}
+  environment:
+    MONGO_CREDENTIALS_SECRET_NAME: ${self:custom.secretsManager.mongoCredentials}
+    DISPATCHER_QUEUE_URL: ${self:custom.sqs.accidentReportsDispatcher.url}
+  events:
+    - sqs:
+        arn: ${self:custom.sqs.accidentReportsExtractor.arn}
+        batchSize: 1
+
+AccidentReportsDispatcher:
+  name: ${self:custom.servicePrefix}-AccidentReportsDispatcher
+  handler: src/accident_reports_dispatcher/handler.handler
+  role: !GetAtt AccidentReportsDispatcherRole.Arn
+  timeout: 15
+  memorySize: 256
+  package:
+    patterns:
+      - ../../src/common/**
+      - ../../src/accident_reports_dispatcher/**
+  environment:
+    ETL_TOPIC_ARN: ${self:custom.sns.accidentReportsEtl.arn}
+  events:
+    - sqs:
+        arn: ${self:custom.sqs.accidentReportsDispatcher.arn}
+        batchSize: 1
+
+AccidentReportsTransformer:
+  name: ${self:custom.servicePrefix}-AccidentReportsTransformer
+  handler: src/accident_reports_transformer/handler.handler
+  role: !GetAtt AccidentReportsTransformerRole.Arn
+  timeout: 15
+  memorySize: 256
+  package:
+    patterns:
+      - ../../src/common/**
+      - ../../src/accident_reports_transformer/**
+  layers:
+    - ${self:custom.layers.postgresql}
+  environment:
+    RDS_CREDENTIALS_SECRET_NAME: ${self:custom.secretsManager.rdsCredentials}
+    TRANSFORMER_DLQ_URL: ${self:custom.sqs.accidentReportsTransformerDLQ.url}
+  events:
+    - sqs:
+        arn: ${self:custom.sqs.accidentReportsTransformer.arn}
+        batchSize: 1
+
+SensorReadingsGenerator:
+  name: ${self:custom.servicePrefix}-SensorReadingsGenerator
+  handler: src/sensor_readings_generator/handler.handler
+  role: !GetAtt SensorReadingsGeneratorRole.Arn
+  timeout: 60
+  memorySize: 256
+  package:
+    patterns:
+      - ../../src/common/**
+      - ../../src/sensor_readings_generator/**
+  layers:
+    - ${self:custom.layers.mongo}
+  environment:
+    MONGO_CREDENTIALS_SECRET_NAME: ${self:custom.secretsManager.mongoCredentials}
+    EXTRACTOR_QUEUE_URL: ${self:custom.sqs.sensorReadingsExtractor.url}
+
+SensorReadingsExtractor:
+  name: ${self:custom.servicePrefix}-SensorReadingsExtractor
+  handler: src/sensor_readings_extractor/handler.handler
+  role: !GetAtt SensorReadingsExtractorRole.Arn
+  timeout: 60
+  memorySize: 256
+  package:
+    patterns:
+      - ../../src/common/**
+      - ../../src/sensor_readings_extractor/**
+  layers:
+    - ${self:custom.layers.mongo}
+  environment:
+    MONGO_CREDENTIALS_SECRET_NAME: ${self:custom.secretsManager.mongoCredentials}
+    DISPATCHER_QUEUE_URL: ${self:custom.sqs.sensorReadingsDispatcher.url}
+  events:
+    - sqs:
+        arn: ${self:custom.sqs.sensorReadingsExtractor.arn}
+        batchSize: 1
+
+SensorReadingsDispatcher:
+  name: ${self:custom.servicePrefix}-SensorReadingsDispatcher
+  handler: src/sensor_readings_dispatcher/handler.handler
+  role: !GetAtt SensorReadingsDispatcherRole.Arn
+  timeout: 15
+  memorySize: 256
+  package:
+    patterns:
+      - ../../src/common/**
+      - ../../src/sensor_readings_dispatcher/**
+  environment:
+    ETL_TOPIC_ARN: ${self:custom.sns.sensorReadingsEtl.arn}
+  events:
+    - sqs:
+        arn: ${self:custom.sqs.sensorReadingsDispatcher.arn}
+        batchSize: 1
+
+SensorReadingsTransformer:
+  name: ${self:custom.servicePrefix}-SensorReadingsTransformer
+  handler: src/sensor_readings_transformer/handler.handler
+  role: !GetAtt SensorReadingsTransformerRole.Arn
+  timeout: 15
+  memorySize: 256
+  package:
+    patterns:
+      - ../../src/common/**
+      - ../../src/sensor_readings_transformer/**
+  layers:
+    - ${self:custom.layers.postgresql}
+  environment:
+    RDS_CREDENTIALS_SECRET_NAME: ${self:custom.secretsManager.rdsCredentials}
+    TRANSFORMER_DLQ_URL: ${self:custom.sqs.sensorReadingsTransformerDLQ.url}
+  events:
+    - sqs:
+        arn: ${self:custom.sqs.sensorReadingsTransformer.arn}
+        batchSize: 1

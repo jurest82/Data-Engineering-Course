@@ -4,6 +4,7 @@
   - [Summary](#summary)
     - [Batch pipeline: accident reports](#batch-pipeline-accident-reports)
     - [Streaming pipeline: traffic sensor readings](#streaming-pipeline-traffic-sensor-readings)
+    - [ETL pipeline: MongoDB Atlas to RDS PostgreSQL](#etl-pipeline-mongodb-atlas-to-rds-postgresql)
     - [Observability](#observability)
     - [Repository structure](#repository-structure)
   - [Setup](#setup)
@@ -35,14 +36,20 @@ Fixed road sensors report average speed and vehicle count every few seconds over
 
 ![Streaming pipeline](docs/architecture_streaming.png)
 
+### ETL pipeline: MongoDB Atlas to RDS PostgreSQL
+
+Both pipelines' data is also copied into RDS PostgreSQL, normalized into dimension tables (cities, severities, roads, sensors) and fact tables (accident reports, sensor readings), with no personal data — ready for structured analytics instead of Mongo's flexible documents. New records are copied automatically as they're written; everything already in Mongo can also be backfilled on demand, and re-running the backfill never creates duplicates.
+
+![ETL pipeline](docs/architecture_etl.png)
+
 ### Observability
 
-Both pipelines alarm on the same condition — anything landing in a dead-letter queue — through CloudWatch alarms that notify an SNS topic by email. An account-wide AWS Budget covers the other half of the risk in a free-tier project: spend that escapes the free tier at all.
+The batch and streaming pipelines alarm on the same condition — anything landing in a dead-letter queue — through CloudWatch alarms that notify an SNS topic by email (the ETL doesn't have alarms of its own yet). An account-wide AWS Budget covers the other half of the risk in a free-tier project: spend that escapes the free tier at all.
 
 ### Repository structure
 
-- **`backend/`**: the Lambda code (Python) and the Serverless stacks that deploy it, one stack per concern: `layers` (shared Python dependencies), `batch` and `streaming`.
-- **`infrastructure/`**: the shared AWS resources both pipelines sit on, each in its own stack: `storage` (S3), `queue` (SQS + dead-letter queues), `secrets` (Secrets Manager), `iot` (IoT Core policy and topic rule) and `alerts` (alarms, SNS and the budget).
+- **`backend/`**: the Lambda code (Python) and the Serverless stacks that deploy it, one stack per concern: `layers` (shared Python dependencies), `batch`, `streaming` and `etl` (the ETL's Lambdas).
+- **`infrastructure/`**: the shared AWS resources both pipelines sit on, each in its own stack: `storage` (S3), `queue` (SQS + dead-letter queues), `secrets` (Secrets Manager), `iot` (IoT Core policy and topic rule), `alerts` (alarms, SNS and the budget), `rds` (the PostgreSQL instance) and `etl` (the ETL's own SQS + dead-letter queues and SNS topics).
 - **`docs/`**: the architecture diagrams above, generated from `docs/architecture.py`.
 
 Each subproject has its own README with its deployment order and environment variables.

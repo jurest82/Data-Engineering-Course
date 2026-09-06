@@ -1,0 +1,115 @@
+service: etl
+frameworkVersion: '^4.6.2'
+configValidationMode: error
+
+provider:
+  name: aws
+  stage: dev
+  region: us-east-1
+  stackName: ${env:DEPLOY_APP}-${self:service}
+  deploymentBucket:
+    name: ${self:custom.s3.deploymentBucketName.${self:custom.stage}}
+
+plugins:
+  - serverless-deployment-bucket
+  - '@serverless/safeguards-plugin'
+
+resources:
+  - ${file(sqs.yml)}
+  - ${file(sns.yml)}
+  - ${file(parameters.yml)}
+
+custom:
+  stage: ${opt:stage, self:provider.stage}
+  safeguards:
+    - safeguard: framework-version
+      enforcementLevel: warning
+      config: ${self:frameworkVersion}
+    - safeguard: allowed-regions
+      enforcementLevel: error
+      config:
+        - ${self:provider.region}
+    - safeguard: allowed-stages
+      enforcementLevel: error
+      config:
+        - dev
+        - test
+        - prod
+  servicePrefix: ${env:DEPLOY_APP}-${self:service}
+  developer: ${env:DEVELOPER}
+  s3:
+    deploymentBucketName:
+      dev: ${self:provider.region}.cfn.${self:service}.${env:DEPLOY_APP}.${self:custom.stage}.${self:custom.developer}.deploys
+      test: ${self:provider.region}.cfn.${self:service}.${env:DEPLOY_APP}.${self:custom.stage}.deploys
+      prod: ${self:provider.region}.cfn.${self:service}.${env:DEPLOY_APP}.${self:custom.stage}.deploys
+  etl:
+    accidentReports:
+      extractor:
+        name:
+          dev: ${env:DEPLOY_APP}-accident-reports-extractor-${self:custom.stage}-${self:custom.developer}
+          test: ${env:DEPLOY_APP}-accident-reports-extractor-${self:custom.stage}
+          prod: ${env:DEPLOY_APP}-accident-reports-extractor-${self:custom.stage}
+        dlqName:
+          dev: ${env:DEPLOY_APP}-accident-reports-extractor-dlq-${self:custom.stage}-${self:custom.developer}
+          test: ${env:DEPLOY_APP}-accident-reports-extractor-dlq-${self:custom.stage}
+          prod: ${env:DEPLOY_APP}-accident-reports-extractor-dlq-${self:custom.stage}
+        maxReceiveCount: 3
+      dispatcher:
+        name:
+          dev: ${env:DEPLOY_APP}-accident-reports-dispatcher-${self:custom.stage}-${self:custom.developer}
+          test: ${env:DEPLOY_APP}-accident-reports-dispatcher-${self:custom.stage}
+          prod: ${env:DEPLOY_APP}-accident-reports-dispatcher-${self:custom.stage}
+        dlqName:
+          dev: ${env:DEPLOY_APP}-accident-reports-dispatcher-dlq-${self:custom.stage}-${self:custom.developer}
+          test: ${env:DEPLOY_APP}-accident-reports-dispatcher-dlq-${self:custom.stage}
+          prod: ${env:DEPLOY_APP}-accident-reports-dispatcher-dlq-${self:custom.stage}
+        maxReceiveCount: 3
+      transformer:
+        name:
+          dev: ${env:DEPLOY_APP}-accident-reports-transformer-${self:custom.stage}-${self:custom.developer}
+          test: ${env:DEPLOY_APP}-accident-reports-transformer-${self:custom.stage}
+          prod: ${env:DEPLOY_APP}-accident-reports-transformer-${self:custom.stage}
+        dlqName:
+          dev: ${env:DEPLOY_APP}-accident-reports-transformer-dlq-${self:custom.stage}-${self:custom.developer}
+          test: ${env:DEPLOY_APP}-accident-reports-transformer-dlq-${self:custom.stage}
+          prod: ${env:DEPLOY_APP}-accident-reports-transformer-dlq-${self:custom.stage}
+        maxReceiveCount: 3
+      topicName:
+        dev: ${env:DEPLOY_APP}-accident-reports-etl-${self:custom.stage}-${self:custom.developer}
+        test: ${env:DEPLOY_APP}-accident-reports-etl-${self:custom.stage}
+        prod: ${env:DEPLOY_APP}-accident-reports-etl-${self:custom.stage}
+    sensorReadings:
+      extractor:
+        name:
+          dev: ${env:DEPLOY_APP}-sensor-readings-extractor-${self:custom.stage}-${self:custom.developer}
+          test: ${env:DEPLOY_APP}-sensor-readings-extractor-${self:custom.stage}
+          prod: ${env:DEPLOY_APP}-sensor-readings-extractor-${self:custom.stage}
+        dlqName:
+          dev: ${env:DEPLOY_APP}-sensor-readings-extractor-dlq-${self:custom.stage}-${self:custom.developer}
+          test: ${env:DEPLOY_APP}-sensor-readings-extractor-dlq-${self:custom.stage}
+          prod: ${env:DEPLOY_APP}-sensor-readings-extractor-dlq-${self:custom.stage}
+        maxReceiveCount: 3
+      dispatcher:
+        name:
+          dev: ${env:DEPLOY_APP}-sensor-readings-dispatcher-${self:custom.stage}-${self:custom.developer}
+          test: ${env:DEPLOY_APP}-sensor-readings-dispatcher-${self:custom.stage}
+          prod: ${env:DEPLOY_APP}-sensor-readings-dispatcher-${self:custom.stage}
+        dlqName:
+          dev: ${env:DEPLOY_APP}-sensor-readings-dispatcher-dlq-${self:custom.stage}-${self:custom.developer}
+          test: ${env:DEPLOY_APP}-sensor-readings-dispatcher-dlq-${self:custom.stage}
+          prod: ${env:DEPLOY_APP}-sensor-readings-dispatcher-dlq-${self:custom.stage}
+        maxReceiveCount: 3
+      transformer:
+        name:
+          dev: ${env:DEPLOY_APP}-sensor-readings-transformer-${self:custom.stage}-${self:custom.developer}
+          test: ${env:DEPLOY_APP}-sensor-readings-transformer-${self:custom.stage}
+          prod: ${env:DEPLOY_APP}-sensor-readings-transformer-${self:custom.stage}
+        dlqName:
+          dev: ${env:DEPLOY_APP}-sensor-readings-transformer-dlq-${self:custom.stage}-${self:custom.developer}
+          test: ${env:DEPLOY_APP}-sensor-readings-transformer-dlq-${self:custom.stage}
+          prod: ${env:DEPLOY_APP}-sensor-readings-transformer-dlq-${self:custom.stage}
+        maxReceiveCount: 3
+      topicName:
+        dev: ${env:DEPLOY_APP}-sensor-readings-etl-${self:custom.stage}-${self:custom.developer}
+        test: ${env:DEPLOY_APP}-sensor-readings-etl-${self:custom.stage}
+        prod: ${env:DEPLOY_APP}-sensor-readings-etl-${self:custom.stage}

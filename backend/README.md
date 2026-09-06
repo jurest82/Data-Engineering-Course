@@ -8,6 +8,8 @@
     - [Dependencies](#dependencies)
     - [Database migrations](#database-migrations)
     - [Database seeding](#database-seeding)
+    - [RDS migrations](#rds-migrations)
+    - [ETL backfill](#etl-backfill)
     - [Deployment](#deployment)
     - [Remove](#remove)
   - [Contribution guidelines](#contribution-guidelines)
@@ -57,6 +59,20 @@ To seed both collections with realistic synthetic data, run `database/seeders/se
 
 Only `dev` and `test` stages are allowed to run seeders (checked against the `MongoCredentials` secret's `STAGE` tag); any other stage skips the process even if run accidentally.
 
+### RDS migrations
+
+To apply pending schema migrations against the `rds` PostgreSQL instance, run `database/rds/migrate.sh`. By default the script assumes an upgrade action; add `--downgrade` to revert instead, optionally followed by a specific migration id (e.g. `--downgrade 20260830000000_schema`) to target only that migration instead of every applied one.
+
+Migrations are plain SQL files in `database/rds/migrations/` (`<timestamp>_<description>.sql` plus a matching `.rollback.sql`), applied via the `yoyo-migrations` package. Requires `infrastructure`'s `rds` stack already deployed.
+
+### ETL backfill
+
+To (re)populate RDS with whatever's currently in MongoDB Atlas, invoke each domain's Generator Lambda by hand from the AWS Console: open **Lambda**, find `<DEPLOY_APP>-backend-etl-<stage>-AccidentReportsGenerator` (and, separately, the `SensorReadingsGenerator` one), and use **Test** with an empty event (`{}`).
+
+Safe to run as often as you like: the Transformer upserts by id, so re-running never creates duplicates. It only adds/updates rows though — a document deleted from Mongo isn't removed from RDS.
+
+New accident reports and sensor readings are also copied automatically as they're written (no need to run this after every upload/reading); this is only for backfilling whatever already existed before the ETL was deployed, or for a full resync.
+
 ### Deployment
 
 You can deploy `Cloud Formation Stacks` using `Serverless Framework` syntax: <https://www.serverless.com/framework/docs/providers/aws/cli-reference/deploy/>
@@ -65,11 +81,13 @@ You can deploy `Cloud Formation Stacks` using `Serverless Framework` syntax: <ht
 
 Deployment order:
 
-1. Deploy `serverless/layers` stack (shared Python Lambda Layers: `Commons`, `Mongo`, `Security`)
-2. Deploy `serverless/batch` stack (the batch accident reports pipeline: API Gateway, all 3 Lambdas, their IAM roles)
-3. Deploy `serverless/streaming` stack (the `PersistSensorReading` Lambda and its IAM role, for the streaming sensor readings pipeline; depends on `serverless/layers` and on `infrastructure`'s `queue` and `secrets` stacks already being deployed)
+1. Deploy `serverless/layers` stack (shared Python Lambda Layers: `Commons`, `Mongo`, `Security`, `Postgresql`)
+2. Deploy `serverless/batch` stack (the batch accident reports pipeline: API Gateway, all 3 Lambdas, their IAM roles; `ValidateAndPersist` publishes to the ETL after persisting, so this also depends on `infrastructure`'s `etl` stack already being deployed)
+3. Deploy `serverless/streaming` stack (the `PersistSensorReading` Lambda and its IAM role, for the streaming sensor readings pipeline; depends on `infrastructure`'s `queue`, `secrets` and `etl` stacks already being deployed, same reason as `batch` above)
 4. [Apply database migrations](#database-migrations)
 5. Optionally, [run database seeders](#database-seeding)
+6. [Apply RDS migrations](#rds-migrations) (requires `infrastructure`'s `rds` stack already deployed)
+7. Deploy `serverless/etl` stack (the ETL's Lambdas — Generator/Extractor/Dispatcher/Transformer per domain — and their IAM roles; depends on `infrastructure`'s `rds` and `etl` stacks already being deployed)
 
 ### Remove
 

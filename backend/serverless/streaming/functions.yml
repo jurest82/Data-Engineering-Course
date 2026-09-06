@@ -13,6 +13,7 @@ PersistSensorReading:
   environment:
     MONGO_CREDENTIALS_SECRET_NAME: ${self:custom.secretsManager.mongoCredentials}
     SENSOR_READINGS_DLQ_URL: ${self:custom.sqs.sensorReadingsDLQ.url}
+    SENSOR_READINGS_ETL_TOPIC_ARN: ${self:custom.sns.sensorReadingsEtl.arn}
   events:
     - sqs:
         arn: ${self:custom.sqs.sensorReadings.arn}

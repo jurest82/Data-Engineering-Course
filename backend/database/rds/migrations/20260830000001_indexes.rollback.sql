@@ -1,0 +1,2 @@
+DROP INDEX sensor_readings_sensor_id_recorded_at_idx;
+DROP INDEX accident_reports_city_id_occurred_at_idx;

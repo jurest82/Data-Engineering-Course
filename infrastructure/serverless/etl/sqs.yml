@@ -1,0 +1,90 @@
+Resources:
+  AccidentReportsExtractorDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ${self:custom.etl.accidentReports.extractor.dlqName.${self:custom.stage}}
+      MessageRetentionPeriod: 1209600 # 14 days
+
+  AccidentReportsExtractorQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ${self:custom.etl.accidentReports.extractor.name.${self:custom.stage}}
+      VisibilityTimeout: 60
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt AccidentReportsExtractorDLQ.Arn
+        maxReceiveCount: ${self:custom.etl.accidentReports.extractor.maxReceiveCount}
+
+  AccidentReportsDispatcherDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ${self:custom.etl.accidentReports.dispatcher.dlqName.${self:custom.stage}}
+      MessageRetentionPeriod: 1209600 # 14 days
+
+  AccidentReportsDispatcherQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ${self:custom.etl.accidentReports.dispatcher.name.${self:custom.stage}}
+      VisibilityTimeout: 60
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt AccidentReportsDispatcherDLQ.Arn
+        maxReceiveCount: ${self:custom.etl.accidentReports.dispatcher.maxReceiveCount}
+
+  AccidentReportsTransformerDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ${self:custom.etl.accidentReports.transformer.dlqName.${self:custom.stage}}
+      MessageRetentionPeriod: 1209600 # 14 days
+
+  AccidentReportsTransformerQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ${self:custom.etl.accidentReports.transformer.name.${self:custom.stage}}
+      VisibilityTimeout: 60
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt AccidentReportsTransformerDLQ.Arn
+        maxReceiveCount: ${self:custom.etl.accidentReports.transformer.maxReceiveCount}
+
+  SensorReadingsExtractorDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ${self:custom.etl.sensorReadings.extractor.dlqName.${self:custom.stage}}
+      MessageRetentionPeriod: 1209600 # 14 days
+
+  SensorReadingsExtractorQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ${self:custom.etl.sensorReadings.extractor.name.${self:custom.stage}}
+      VisibilityTimeout: 60
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt SensorReadingsExtractorDLQ.Arn
+        maxReceiveCount: ${self:custom.etl.sensorReadings.extractor.maxReceiveCount}
+
+  SensorReadingsDispatcherDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ${self:custom.etl.sensorReadings.dispatcher.dlqName.${self:custom.stage}}
+      MessageRetentionPeriod: 1209600 # 14 days
+
+  SensorReadingsDispatcherQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ${self:custom.etl.sensorReadings.dispatcher.name.${self:custom.stage}}
+      VisibilityTimeout: 60
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt SensorReadingsDispatcherDLQ.Arn
+        maxReceiveCount: ${self:custom.etl.sensorReadings.dispatcher.maxReceiveCount}
+
+  SensorReadingsTransformerDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ${self:custom.etl.sensorReadings.transformer.dlqName.${self:custom.stage}}
+      MessageRetentionPeriod: 1209600 # 14 days
+
+  SensorReadingsTransformerQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ${self:custom.etl.sensorReadings.transformer.name.${self:custom.stage}}
+      VisibilityTimeout: 60
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt SensorReadingsTransformerDLQ.Arn
+        maxReceiveCount: ${self:custom.etl.sensorReadings.transformer.maxReceiveCount}
