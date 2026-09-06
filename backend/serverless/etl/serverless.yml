@@ -73,6 +73,20 @@ custom:
     accidentReportsTransformerDLQ:
       url: ${ssm:/${env:DEPLOY_APP}-etl/AccidentReportsTransformerDLQUrl}
       arn: ${ssm:/${env:DEPLOY_APP}-etl/AccidentReportsTransformerDLQArn}
+    sensorReadingsExtractor:
+      url: ${ssm:/${env:DEPLOY_APP}-etl/SensorReadingsExtractorQueueUrl}
+      arn: ${ssm:/${env:DEPLOY_APP}-etl/SensorReadingsExtractorQueueArn}
+    sensorReadingsDispatcher:
+      url: ${ssm:/${env:DEPLOY_APP}-etl/SensorReadingsDispatcherQueueUrl}
+      arn: ${ssm:/${env:DEPLOY_APP}-etl/SensorReadingsDispatcherQueueArn}
+    sensorReadingsTransformer:
+      url: ${ssm:/${env:DEPLOY_APP}-etl/SensorReadingsTransformerQueueUrl}
+      arn: ${ssm:/${env:DEPLOY_APP}-etl/SensorReadingsTransformerQueueArn}
+    sensorReadingsTransformerDLQ:
+      url: ${ssm:/${env:DEPLOY_APP}-etl/SensorReadingsTransformerDLQUrl}
+      arn: ${ssm:/${env:DEPLOY_APP}-etl/SensorReadingsTransformerDLQArn}
   sns:
     accidentReportsEtl:
       arn: ${ssm:/${env:DEPLOY_APP}-etl/AccidentReportsEtlTopicArn}
+    sensorReadingsEtl:
+      arn: ${ssm:/${env:DEPLOY_APP}-etl/SensorReadingsEtlTopicArn}
