@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [x.x.x] - dd/mm/yyyy
+
+### Added
+
+- `backend` subproject:
+  - Normalized PostgreSQL schema for the future ETL out of MongoDB Atlas (`cities`/`severities`/`roads`/`sensors` dimension tables, `accident_reports`/`sensor_readings` fact tables, no PII columns), with migrations in `backend/database/rds/` applied via `yoyo-migrations`
+  - `Postgresql` Lambda Layer (`psycopg2-binary`) and a shared connection helper (`backend/src/common/postgres.py`), ready for the future ETL
+
 ## [0.0.2] - 29/08/2026
 
 ### Added

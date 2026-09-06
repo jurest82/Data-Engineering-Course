@@ -8,6 +8,7 @@
     - [Dependencies](#dependencies)
     - [Database migrations](#database-migrations)
     - [Database seeding](#database-seeding)
+    - [RDS migrations](#rds-migrations)
     - [Deployment](#deployment)
     - [Remove](#remove)
   - [Contribution guidelines](#contribution-guidelines)
@@ -57,6 +58,12 @@ To seed both collections with realistic synthetic data, run `database/seeders/se
 
 Only `dev` and `test` stages are allowed to run seeders (checked against the `MongoCredentials` secret's `STAGE` tag); any other stage skips the process even if run accidentally.
 
+### RDS migrations
+
+To apply pending schema migrations against the `rds` PostgreSQL instance, run `database/rds/migrate.sh`. By default the script assumes an upgrade action; add `--downgrade` to revert instead, optionally followed by a specific migration id (e.g. `--downgrade 20260830000000_schema`) to target only that migration instead of every applied one.
+
+Migrations are plain SQL files in `database/rds/migrations/` (`<timestamp>_<description>.sql` plus a matching `.rollback.sql`), applied via the `yoyo-migrations` package. Requires `infrastructure`'s `rds` stack already deployed.
+
 ### Deployment
 
 You can deploy `Cloud Formation Stacks` using `Serverless Framework` syntax: <https://www.serverless.com/framework/docs/providers/aws/cli-reference/deploy/>
@@ -70,6 +77,7 @@ Deployment order:
 3. Deploy `serverless/streaming` stack (the `PersistSensorReading` Lambda and its IAM role, for the streaming sensor readings pipeline; depends on `serverless/layers` and on `infrastructure`'s `queue` and `secrets` stacks already being deployed)
 4. [Apply database migrations](#database-migrations)
 5. Optionally, [run database seeders](#database-seeding)
+6. [Apply RDS migrations](#rds-migrations) (requires `infrastructure`'s `rds` stack already deployed)
 
 ### Remove
 
