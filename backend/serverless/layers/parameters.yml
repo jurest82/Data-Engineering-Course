@@ -22,3 +22,11 @@ Resources:
       Tier: Standard
       Type: String
       Value: !Ref SecurityLambdaLayer
+
+  PostgresqlLayerArn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/PostgresqlLayerArn
+      Tier: Standard
+      Type: String
+      Value: !Ref PostgresqlLambdaLayer

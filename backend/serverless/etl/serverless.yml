@@ -1,0 +1,78 @@
+service: backend-etl
+frameworkVersion: '^4.6.2'
+configValidationMode: error
+
+provider:
+  name: aws
+  stage: dev
+  region: us-east-1
+  runtime: python3.13
+  architecture: ${file(../architecture.js):get}
+  stackName: ${env:DEPLOY_APP}-${self:service}
+  deploymentBucket:
+    name: ${self:custom.s3.deploymentBucketName.${self:custom.stage}}
+
+package:
+  individually: true
+  patterns:
+    - '!./**'
+
+resources:
+  - ${file(iam.yml)}
+
+functions: ${file(functions.yml)}
+
+plugins:
+  - serverless-deployment-bucket
+  - '@serverless/safeguards-plugin'
+
+custom:
+  stage: ${opt:stage, self:provider.stage}
+  safeguards:
+    - safeguard: framework-version
+      enforcementLevel: warning
+      config: ${self:frameworkVersion}
+    - safeguard: allowed-regions
+      enforcementLevel: error
+      config:
+        - ${self:provider.region}
+    - safeguard: allowed-function-names
+      enforcementLevel: warning
+      config: ${self:custom.servicePrefix}-${FUNCTION}
+    - safeguard: no-wild-iam-role-statements
+      enforcementLevel: warning
+    - safeguard: allowed-stages
+      enforcementLevel: error
+      config:
+        - dev
+        - test
+        - prod
+  servicePrefix: ${env:DEPLOY_APP}-${self:service}
+  developer: ${env:DEVELOPER}
+  s3:
+    deploymentBucketName:
+      dev: ${self:provider.region}.cfn.${self:service}.${env:DEPLOY_APP}.${self:custom.stage}.${self:custom.developer}.deploys
+      test: ${self:provider.region}.cfn.${self:service}.${env:DEPLOY_APP}.${self:custom.stage}.deploys
+      prod: ${self:provider.region}.cfn.${self:service}.${env:DEPLOY_APP}.${self:custom.stage}.deploys
+  layers:
+    mongo: ${ssm:/${env:DEPLOY_APP}-backend-layers/MongoLayerArn}
+    postgresql: ${ssm:/${env:DEPLOY_APP}-backend-layers/PostgresqlLayerArn}
+  secretsManager:
+    mongoCredentials: /${env:DEPLOY_APP}-secrets/MongoCredentials
+    rdsCredentials: /${env:DEPLOY_APP}-rds/MasterCredentials
+  sqs:
+    accidentReportsExtractor:
+      url: ${ssm:/${env:DEPLOY_APP}-etl/AccidentReportsExtractorQueueUrl}
+      arn: ${ssm:/${env:DEPLOY_APP}-etl/AccidentReportsExtractorQueueArn}
+    accidentReportsDispatcher:
+      url: ${ssm:/${env:DEPLOY_APP}-etl/AccidentReportsDispatcherQueueUrl}
+      arn: ${ssm:/${env:DEPLOY_APP}-etl/AccidentReportsDispatcherQueueArn}
+    accidentReportsTransformer:
+      url: ${ssm:/${env:DEPLOY_APP}-etl/AccidentReportsTransformerQueueUrl}
+      arn: ${ssm:/${env:DEPLOY_APP}-etl/AccidentReportsTransformerQueueArn}
+    accidentReportsTransformerDLQ:
+      url: ${ssm:/${env:DEPLOY_APP}-etl/AccidentReportsTransformerDLQUrl}
+      arn: ${ssm:/${env:DEPLOY_APP}-etl/AccidentReportsTransformerDLQArn}
+  sns:
+    accidentReportsEtl:
+      arn: ${ssm:/${env:DEPLOY_APP}-etl/AccidentReportsEtlTopicArn}
