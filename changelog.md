@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [x.x.x] - dd/mm/yyyy
+
+### Added
+
+- `infrastructure` subproject:
+  - Custom RDS parameter group enabling `pg_cron`, used to schedule `pg_partman`'s maintenance job (`rds`)
+- `backend` subproject:
+  - `sensor_readings` partitioned by `recorded_at` (one partition per day, managed by `pg_partman`), with a daily `pg_cron` job keeping future partitions premade
+  - A classroom demo for partitioning (`backend/database/rds/demo_partitioning.py`)
+
 ## [0.0.3] - 05/09/2026
 
 ### Added
