@@ -47,7 +47,8 @@
           "monorepository",
           "numerify",
           "upserts",
-          "vehiculos"
+          "vehiculos",
+          "yoyo"
         ],
         "editor.codeActionsOnSave": {
           "source.fixAll.markdownlint": "explicit",
