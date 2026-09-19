@@ -5,6 +5,7 @@
     - [Batch pipeline: accident reports](#batch-pipeline-accident-reports)
     - [Streaming pipeline: traffic sensor readings](#streaming-pipeline-traffic-sensor-readings)
     - [ETL pipeline: MongoDB Atlas to RDS PostgreSQL](#etl-pipeline-mongodb-atlas-to-rds-postgresql)
+    - [Bedrock Agent: natural-language questions](#bedrock-agent-natural-language-questions)
     - [Observability](#observability)
     - [Repository structure](#repository-structure)
   - [Setup](#setup)
@@ -42,14 +43,21 @@ Both pipelines' data is also copied into RDS PostgreSQL, normalized into dimensi
 
 ![ETL pipeline](docs/architecture_etl.png)
 
+### Bedrock Agent: natural-language questions
+
+An Amazon Bedrock AgentCore agent answers questions about the traffic monitoring data in plain language, generating and running the SQL against RDS itself rather than through a fixed set of predefined queries. It only ever connects with a read-only database role, so it can query anything but change nothing. A small chat frontend, streamed over a WebSocket, exposes it to a browser; it's also still invocable directly via the AgentCore API for testing.
+
+![Chat frontend](docs/architecture_chat.png)
+
 ### Observability
 
 The batch and streaming pipelines alarm on the same condition — anything landing in a dead-letter queue — through CloudWatch alarms that notify an SNS topic by email (the ETL doesn't have alarms of its own yet). An account-wide AWS Budget covers the other half of the risk in a free-tier project: spend that escapes the free tier at all.
 
 ### Repository structure
 
-- **`backend/`**: the Lambda code (Python) and the Serverless stacks that deploy it, one stack per concern: `layers` (shared Python dependencies), `batch`, `streaming` and `etl` (the ETL's Lambdas).
+- **`backend/`**: the Lambda code (Python) and the Serverless stacks that deploy it, one stack per concern: `layers` (shared Python dependencies), `batch`, `streaming`, `etl` (the ETL's Lambdas) and `bedrock` (the AgentCore Harness, Gateway, Lambda tool, and the chat WebSocket's Lambda).
 - **`infrastructure/`**: the shared AWS resources both pipelines sit on, each in its own stack: `storage` (S3), `queue` (SQS + dead-letter queues), `secrets` (Secrets Manager), `iot` (IoT Core policy and topic rule), `alerts` (alarms, SNS and the budget), `rds` (the PostgreSQL instance) and `etl` (the ETL's own SQS + dead-letter queues and SNS topics).
+- **`frontend/`**: the chat UI (vanilla HTML/CSS/JS) and the Serverless stack that serves it (S3 + CloudFront).
 - **`docs/`**: the architecture diagrams above, generated from `docs/architecture.py`.
 
 Each subproject has its own README with its deployment order and environment variables.

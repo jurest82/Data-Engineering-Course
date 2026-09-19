@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [x.x.x] - dd/mm/yyyy
+
+### Added
+
+- `infrastructure` subproject:
+  - Custom RDS parameter group enabling `pg_cron`, used to schedule `pg_partman`'s maintenance job (`rds`)
+- `backend` subproject:
+  - `sensor_readings` partitioned by `recorded_at` (one partition per day, managed by `pg_partman`), with a daily `pg_cron` job keeping future partitions premade
+  - A classroom demo for partitioning (`backend/database/rds/demo_partitioning.py`)
+  - A read-only PostgreSQL role (`readonly`) for querying RDS without write access, with its password generated and stored in Secrets Manager automatically
+  - An Amazon Bedrock AgentCore agent (Harness + Gateway) that answers natural-language questions by generating and running SQL against RDS through a single Lambda tool (`bedrock`)
+  - A WebSocket API and `ChatStream` Lambda (`bedrock`) that stream the agent's responses to a browser in real time
+- New `frontend` subproject: a chat UI (vanilla HTML/CSS/JS) for the Bedrock agent, served from S3 through CloudFront (`serverless/site`), with a `deploy.sh` that builds and deploys it in one step
+
 ## [0.0.3] - 05/09/2026
 
 ### Added

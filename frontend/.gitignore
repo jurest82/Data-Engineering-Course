@@ -1,0 +1,7 @@
+*.serverless
+*.vscode
+*.DS_Store
+.ssh
+tmp/
+node_modules/
+dist/

@@ -1,5 +1,5 @@
 {
-  "name": "data-eng-course-backend",
+  "name": "data-eng-course-frontend",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@serverless/safeguards-plugin": "^1.2.1",
@@ -10,7 +10,7 @@
     "eslint-config-prettier": "^10.1.8"
   },
   "scripts": {
-    "format": "prettier --write . && yapf -i -r src/ database/ && python3 -m isort src/ database/",
-    "format:check": "prettier --check . && yapf --diff -r src/ database/ && python3 -m isort --check-only src/ database/"
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   }
 }

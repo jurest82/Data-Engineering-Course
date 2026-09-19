@@ -16,6 +16,15 @@ Resources:
       DBSubnetGroupDescription: Default VPC subnets for the traffic monitoring RDS instance
       SubnetIds: !Split [',', '${env:DEFAULT_VPC_SUBNET_IDS}']
 
+  TrafficMonitoringParameterGroup:
+    Type: AWS::RDS::DBParameterGroup
+    Properties:
+      Description: Enables pg_cron, used to schedule pg_partman's maintenance job for sensor_readings
+      Family: postgres18
+      Parameters:
+        shared_preload_libraries: pg_cron
+        cron.database_name: traffic_monitoring
+
   TrafficMonitoringMasterSecret:
     Type: AWS::SecretsManager::Secret
     Properties:
@@ -47,6 +56,7 @@ Resources:
         - '{{resolve:secretsmanager:${SecretId}::password}}'
         - SecretId: !Ref TrafficMonitoringMasterSecret
       DBSubnetGroupName: !Ref TrafficMonitoringDBSubnetGroup
+      DBParameterGroupName: !Ref TrafficMonitoringParameterGroup
       VPCSecurityGroups:
         - !GetAtt TrafficMonitoringSecurityGroup.GroupId
       PubliclyAccessible: true
@@ -64,3 +74,21 @@ Resources:
       SecretId: !Ref TrafficMonitoringMasterSecret
       TargetId: !Ref TrafficMonitoringDBInstance
       TargetType: AWS::RDS::DBInstance
+
+  ReadOnlyCredentials:
+    Type: AWS::SecretsManager::Secret
+    DependsOn:
+      - TrafficMonitoringDBInstance
+    Properties:
+      Name: !Sub /${self:custom.servicePrefix}/ReadOnlyCredentials
+      Description: Read-only PostgreSQL role for the traffic monitoring database, meant for the future Bedrock agent
+      GenerateSecretString:
+        SecretStringTemplate: !Sub |
+          {
+            "username": "readonly",
+            "host": "${TrafficMonitoringDBInstance.Endpoint.Address}",
+            "port": "${TrafficMonitoringDBInstance.Endpoint.Port}",
+            "dbname": "traffic_monitoring"
+          }
+        GenerateStringKey: password
+        ExcludeCharacters: '"''(),./:;<=>?@[\]^`{|}~%#&!'

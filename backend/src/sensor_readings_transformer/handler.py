@@ -99,13 +99,12 @@ def _upsert(connection, document):
                 id, sensor_id, city_id, road_id, speed_avg,
                 vehicle_count, recorded_at, created_at, updated_at
             ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-            ON CONFLICT (id) DO UPDATE SET
+            ON CONFLICT (id, recorded_at) DO UPDATE SET
                 sensor_id = EXCLUDED.sensor_id,
                 city_id = EXCLUDED.city_id,
                 road_id = EXCLUDED.road_id,
                 speed_avg = EXCLUDED.speed_avg,
                 vehicle_count = EXCLUDED.vehicle_count,
-                recorded_at = EXCLUDED.recorded_at,
                 updated_at = EXCLUDED.updated_at
             ''', (
                 document['_id'],

@@ -1,0 +1,8 @@
+Resources:
+  SiteUrl:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/SiteUrl
+      Tier: Standard
+      Type: String
+      Value: !Sub https://${SiteDistribution.DomainName}
