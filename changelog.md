@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `backend` subproject:
   - `sensor_readings` partitioned by `recorded_at` (one partition per day, managed by `pg_partman`), with a daily `pg_cron` job keeping future partitions premade
   - A classroom demo for partitioning (`backend/database/rds/demo_partitioning.py`)
+  - A read-only PostgreSQL role (`readonly`) for querying RDS without write access, with its password generated and stored in Secrets Manager automatically
+  - An Amazon Bedrock AgentCore agent (Harness + Gateway) that answers natural-language questions by generating and running SQL against RDS through a single Lambda tool (`bedrock`)
 
 ## [0.0.3] - 05/09/2026
 

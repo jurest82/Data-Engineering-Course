@@ -1,0 +1,16 @@
+RunSqlQuery:
+  name: ${self:custom.servicePrefix}-RunSqlQuery
+  handler: src/run_sql_query/handler.handler
+  role: !GetAtt RunSqlQueryRole.Arn
+  timeout: 15
+  memorySize: 256
+  package:
+    patterns:
+      - ../../src/common/**
+      - ../../src/run_sql_query/**
+  layers:
+    - ${self:custom.layers.postgresql}
+  environment:
+    READONLY_CREDENTIALS_SECRET_NAME: ${self:custom.secretsManager.readonlyCredentials}
+    STATEMENT_TIMEOUT_MS: '5000'
+    MAX_ROWS: '200'

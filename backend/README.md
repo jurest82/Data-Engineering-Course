@@ -88,6 +88,7 @@ Deployment order:
 5. Optionally, [run database seeders](#database-seeding)
 6. [Apply RDS migrations](#rds-migrations) (requires `infrastructure`'s `rds` stack already deployed)
 7. Deploy `serverless/etl` stack (the ETL's Lambdas — Generator/Extractor/Dispatcher/Transformer per domain — and their IAM roles; depends on `infrastructure`'s `rds` and `etl` stacks already being deployed)
+8. Deploy `serverless/bedrock` stack (the AgentCore Harness, its Gateway/GatewayTarget and the `RunSqlQuery` Lambda; depends on `infrastructure`'s `rds` stack already being deployed, for the `readonly` role's credentials). Requires Claude Haiku's model access to already be enabled for the account/region in the Bedrock console — this can't be automated via CloudFormation.
 
 ### Remove
 
