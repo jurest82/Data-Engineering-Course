@@ -1,0 +1,8 @@
+Resources:
+  ChatWebSocketUrl:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/ChatWebSocketUrl
+      Tier: Standard
+      Type: String
+      Value: !Sub '${WebsocketsApi.ApiEndpoint}/${self:custom.stage}'

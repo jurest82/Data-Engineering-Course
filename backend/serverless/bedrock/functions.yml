@@ -14,3 +14,23 @@ RunSqlQuery:
     READONLY_CREDENTIALS_SECRET_NAME: ${self:custom.secretsManager.readonlyCredentials}
     STATEMENT_TIMEOUT_MS: '5000'
     MAX_ROWS: '200'
+
+ChatStream:
+  name: ${self:custom.servicePrefix}-ChatStream
+  handler: src/chat_stream/handler.handler
+  role: !GetAtt ChatStreamRole.Arn
+  timeout: 60
+  memorySize: 256
+  package:
+    patterns:
+      - ../../src/common/**
+      - ../../src/chat_stream/**
+  environment:
+    HARNESS_ARN: !GetAtt Agent.Arn
+  events:
+    - websocket:
+        route: $connect
+    - websocket:
+        route: $disconnect
+    - websocket:
+        route: sendMessage

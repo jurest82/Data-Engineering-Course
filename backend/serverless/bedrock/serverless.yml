@@ -20,6 +20,7 @@ package:
 resources:
   - ${file(iam.yml)}
   - ${file(bedrock.yml)}
+  - ${file(parameters.yml)}
 
 functions: ${file(functions.yml)}
 
@@ -40,8 +41,6 @@ custom:
     - safeguard: allowed-function-names
       enforcementLevel: warning
       config: ${self:custom.servicePrefix}-${FUNCTION}
-    - safeguard: no-wild-iam-role-statements
-      enforcementLevel: warning
     - safeguard: allowed-stages
       enforcementLevel: error
       config:
