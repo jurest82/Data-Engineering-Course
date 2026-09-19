@@ -55,7 +55,8 @@
       "Bash(docker restart *)",
 
       "Skill(update-config)",
-      "WebFetch(domain:www.serverless.com)"
+      "WebFetch(domain:www.serverless.com)",
+      "WebFetch(domain:aws.amazon.com)"
     ]
   }
 }
