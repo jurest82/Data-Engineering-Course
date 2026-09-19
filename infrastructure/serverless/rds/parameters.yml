@@ -22,3 +22,19 @@ Resources:
       Tier: Standard
       Type: String
       Value: !GetAtt TrafficMonitoringDBInstance.Endpoint.Address
+
+  ReadOnlyCredentialsArn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/ReadOnlyCredentialsArn
+      Tier: Standard
+      Type: String
+      Value: !Ref ReadOnlyCredentials
+
+  ReadOnlyCredentialsName:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/ReadOnlyCredentialsName
+      Tier: Standard
+      Type: String
+      Value: !Sub /${self:custom.servicePrefix}/ReadOnlyCredentials

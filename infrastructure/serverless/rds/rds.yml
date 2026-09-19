@@ -74,3 +74,21 @@ Resources:
       SecretId: !Ref TrafficMonitoringMasterSecret
       TargetId: !Ref TrafficMonitoringDBInstance
       TargetType: AWS::RDS::DBInstance
+
+  ReadOnlyCredentials:
+    Type: AWS::SecretsManager::Secret
+    DependsOn:
+      - TrafficMonitoringDBInstance
+    Properties:
+      Name: !Sub /${self:custom.servicePrefix}/ReadOnlyCredentials
+      Description: Read-only PostgreSQL role for the traffic monitoring database, meant for the future Bedrock agent
+      GenerateSecretString:
+        SecretStringTemplate: !Sub |
+          {
+            "username": "readonly",
+            "host": "${TrafficMonitoringDBInstance.Endpoint.Address}",
+            "port": "${TrafficMonitoringDBInstance.Endpoint.Port}",
+            "dbname": "traffic_monitoring"
+          }
+        GenerateStringKey: password
+        ExcludeCharacters: '"''(),./:;<=>?@[\]^`{|}~%#&!'
