@@ -152,6 +152,10 @@ A top-level subproject, `frontend/` (same devcontainer/`.envs`/`ws.code-workspac
 - **Frontend is intentionally minimal**: vanilla HTML/CSS/JS, no framework, no build step. All state lives in an in-memory array in the browser tab — reloading loses everything, no reconnection logic if the socket drops. Multiple conversations can run at once (sidebar + "Nueva conversación"), multiplexed over one shared WebSocket connection, disambiguated by `sessionId`.
 - **Doesn't cover the batch Excel upload** — that flow deliberately has no frontend and never will; it's tested directly via Postman.
 
+## Documentation convention
+
+Human-facing docs (`README.md` at any level, `DATA_GOVERNANCE.md`, etc.) never reference `CLAUDE.md` — it's written for the AI agent working in this repo, not for people reading the project's documentation. Cross-reference `README.md` instead when pointing to where something else is documented.
+
 ## Commit convention
 
 Base: Conventional Commits (see [reference article](https://medium.com/@iambonitheuri/the-art-of-writing-meaningful-git-commit-messages-a56887a4cb49)): types like `feat`/`fix`/`refactor`/`chore`/`docs`/`test`/etc., imperative mood, no trailing period.
@@ -171,7 +175,7 @@ When a commit touches several things (code + docs, for example), reflect each on
 
 ## Changelog convention
 
-`changelog.md`'s top two headings are `## [Unreleased]` followed by `## [x.x.x] - dd/mm/yyyy`, and they serve different purposes:
+`CHANGELOG.md`'s top two headings are `## [Unreleased]` followed by `## [x.x.x] - dd/mm/yyyy`, and they serve different purposes:
 
 - **`[Unreleased]`** is a backlog: things that are done (built, maybe even committed) but deliberately paused/not deployed yet, kept there so they aren't forgotten. Not always empty.
 - **`[x.x.x] - dd/mm/yyyy`** is the actual next release in progress — its bullets, under whichever standard Keep a Changelog category applies (`### Added`, `### Changed`, `### Fixed`, `### Removed`, etc. — not just `Added`/`Changed`), are what's actively being worked toward shipping, with `x.x.x`/`dd/mm/yyyy` as a placeholder for whatever version/date it turns out to be once released.
