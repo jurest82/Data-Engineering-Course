@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chat de monitoreo de tráfico</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="brand">
+          <span class="brand-icon">🚦</span>
+          <div>
+            <div class="brand-title">Tráfico Bot</div>
+            <div class="brand-subtitle">Monitoreo en tiempo real</div>
+          </div>
+        </div>
+        <button id="new-conversation" class="new-conversation">
+          + Nueva conversación
+        </button>
+        <ul id="conversation-list" class="conversation-list"></ul>
+      </aside>
+      <main class="chat">
+        <header class="chat-header">
+          <div class="chat-header-title">Asistente de tráfico</div>
+          <div class="chat-header-subtitle">
+            Pregunta sobre accidentes y sensores en Bogotá, Medellín, Cali y
+            Barranquilla
+          </div>
+        </header>
+        <div id="messages" class="messages"></div>
+        <div id="connection-banner" class="connection-banner" hidden>
+          ⚠️ Conexión perdida, recarga la página.
+        </div>
+        <form id="composer" class="composer">
+          <input
+            id="prompt-input"
+            type="text"
+            placeholder="Pregunta algo sobre accidentes o sensores..."
+            autocomplete="off"
+          />
+          <button type="submit">Enviar</button>
+        </form>
+      </main>
+    </div>
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

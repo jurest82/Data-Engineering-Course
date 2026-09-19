@@ -1,0 +1,25 @@
+services:
+  data_eng_course_frontend:
+    container_name: 'DataEngCourseFrontend'
+    build:
+      context: .
+      dockerfile: ../../.docker/Dockerfile
+      target: img-frontend
+    volumes:
+      - ../..:/app
+      - data-eng-course-frontend-bashhistory:/commandhistory
+    env_file:
+      - ../../.envs/aws.env
+      - ../../.envs/sls.env
+      - ../.envs/config.env
+    environment:
+      - DEPLOY_APP=data-eng-course
+    working_dir: /app/frontend
+    restart: unless-stopped
+    command:
+      - /bin/sh
+      - -c
+      - sleep infinity
+
+volumes:
+  data-eng-course-frontend-bashhistory:

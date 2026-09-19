@@ -1,0 +1,16 @@
+{
+  "name": "data-eng-course-frontend",
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@serverless/safeguards-plugin": "^1.2.1",
+    "globals": "^17.12.0",
+    "serverless-deployment-bucket": "^1.6.0",
+    "prettier": "^3.9.6",
+    "eslint": "^10.8.1",
+    "eslint-config-prettier": "^10.1.8"
+  },
+  "scripts": {
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  }
+}
