@@ -15,7 +15,8 @@ from diagrams.aws.database import RDS
 from diagrams.aws.integration import SNS, SQS
 from diagrams.aws.iot import IotCore, IotSensor
 from diagrams.aws.management import Cloudwatch
-from diagrams.aws.network import APIGateway
+from diagrams.aws.ml import Bedrock
+from diagrams.aws.network import APIGateway, CloudFront
 from diagrams.aws.security import SecretsManager
 from diagrams.aws.storage import S3
 from diagrams.onprem.client import User
@@ -216,3 +217,39 @@ with Diagram(
     extractor_queue >> branch(label="redrive", style="dashed") >> extractor_dlq
     dispatcher_queue >> branch(label="redrive", style="dashed") >> dispatcher_dlq
     transformer_queue >> branch(xlabel="redrive", style="dashed") >> transformer_dlq
+
+
+with Diagram(
+        "Chat frontend - Bedrock agent over WebSocket",
+        filename="architecture_chat",
+        show=False,
+        direction="LR",
+        graph_attr=graph_attr,
+        node_attr=node_attr,
+        edge_attr=edge_attr,
+):
+    readonly_secrets = SecretsManager("Secrets Manager\n(readonly RDS)",
+                                       height=NODE_H)
+
+    browser = User("Browser\n(chat UI)", height=NODE_H)
+    cloudfront = CloudFront("CloudFront", height=NODE_H)
+    site_bucket = S3("S3\n(static site)", height=NODE_H)
+    api_gw = APIGateway("API Gateway\n(WebSocket)", height=NODE_H)
+    chat_lambda = Lambda("ChatStream", height=NODE_H)
+    harness = Bedrock("Harness\n(AgentCore)", height=NODE_H)
+    sql_lambda = Lambda("RunSqlQuery", height=NODE_H)
+    rds = RDS("RDS PostgreSQL", height=NODE_H)
+
+    browser >> flow(label="GET static site") >> cloudfront
+    cloudfront >> flow() >> site_bucket
+
+    browser >> flow(label="sendMessage\n{sessionId, prompt}") >> api_gw
+    api_gw >> flow() >> chat_lambda
+    chat_lambda >> flow(label="InvokeHarness") >> harness
+    harness >> flow(label="run_sql_query") >> sql_lambda
+    sql_lambda >> flow(label="SELECT / WITH") >> rds
+
+    chat_lambda >> loose(
+        xlabel="delta / tool_start / done\n(PostToConnection)",
+        style="dashed") >> browser
+    readonly_secrets >> support(label="credentials") >> sql_lambda

@@ -77,6 +77,11 @@ RUN pip3 install yoyo-migrations
 RUN apt-get install -y mosquitto-clients
 USER $USER
 
+######## FRONTEND IMAGE ########
+FROM img-base AS img-frontend
+USER root
+USER $USER
+
 ######## ROOT IMAGE (monorepo-level tooling, e.g. architecture diagrams) ########
 FROM img-base AS img-root
 USER root

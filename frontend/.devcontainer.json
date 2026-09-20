@@ -1,22 +1,17 @@
 {
-  "name": "data-eng-course-backend",
+  "name": "data-eng-course-frontend",
   "dockerComposeFile": ".docker/docker-compose.yml",
-  "service": "data_eng_course_backend",
-  "workspaceFolder": "/app/backend",
+  "service": "data_eng_course_frontend",
+  "workspaceFolder": "/app/frontend",
   "customizations": {
     "vscode": {
       "extensions": [
         "aaron-bond.better-comments",
         "davidanson.vscode-markdownlint",
-        "eeyore.yapf",
         "esbenp.prettier-vscode",
-        "GrapeCity.gc-excelviewer",
         "irongeek.vscode-env",
         "mikestead.dotenv",
         "ms-azuretools.vscode-docker",
-        "ms-python.isort",
-        "ms-python.pylint",
-        "ms-python.python",
         "ms-vscode.live-server",
         "streetsidesoftware.code-spell-checker",
         "streetsidesoftware.code-spell-checker-spanish",
@@ -25,39 +20,9 @@
         "yzhang.markdown-all-in-one"
       ],
       "settings": {
-        "cSpell.files": ["**/*.md", "**/*.py"],
+        "cSpell.files": ["**/*.md", "**/*.js"],
         "cSpell.language": "en,es",
-        "cSpell.languageSettings": [
-          {
-            "languageId": "python",
-            "ignoreRegExpList": [
-              "/^\\s*from.*import/gm" // Ignore imports
-            ]
-          }
-        ],
-        "cSpell.words": [
-          "AGENTCORE",
-          "apigatewaymanagementapi",
-          "Bedrock",
-          "Boyacá",
-          "cedula",
-          "COLLSCAN",
-          "Dockerized",
-          "IXSCAN",
-          "Medellín",
-          "millis",
-          "mongodb",
-          "monorepository",
-          "numerify",
-          "reprompt",
-          "upserts",
-          "vehiculos",
-          "yoyo"
-        ],
-        "editor.codeActionsOnSave": {
-          "source.fixAll.markdownlint": "explicit",
-          "source.organizeImports": "explicit"
-        },
+        "cSpell.words": ["Dockerized", "monorepository"],
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.formatOnPaste": true,
         "editor.formatOnSave": true,
@@ -71,17 +36,6 @@
           "editor.formatOnPaste": true,
           "editor.defaultFormatter": "davidanson.vscode-markdownlint"
         },
-        "python.analysis.typeCheckingMode": "basic",
-        "python.formatting.provider": "none",
-        "python.pythonPath": "/usr/local/bin/python3",
-        "[python]": {
-          "editor.codeActionsOnSave": {
-            "source.organizeImports": "explicit"
-          },
-          "editor.formatOnSaveMode": "file",
-          "editor.formatOnSave": true,
-          "editor.defaultFormatter": "eeyore.yapf"
-        },
         "serverlessIDE.cfnLint.path": "/usr/local/bin/cfn-lint",
         "serverlessIDE.cfnLint.appendRules": ["cfn_lint_serverless.rules"],
         "serverlessIDE.completion": true,
@@ -89,8 +43,7 @@
         "serverlessIDE.telemetry.enableTelemetry": false,
         "serverlessIDE.validate": true,
         "serverlessIDE.validationProvider": "cfn-lint",
-        "todo-tree.highlights.useColourScheme": true,
-        "yapf.interpreter": ["/usr/local/bin/python3"]
+        "todo-tree.highlights.useColourScheme": true
       }
     }
   },

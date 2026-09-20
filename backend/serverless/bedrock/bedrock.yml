@@ -1,0 +1,103 @@
+Resources:
+  AgentMemory:
+    Type: AWS::BedrockAgentCore::Memory
+    Properties:
+      Name: TrafficMonitoringAgentMemory
+      Description: Short-term conversation history for the traffic monitoring agent -- no long-term strategies, kept deliberately minimal to avoid their extra cost
+      EventExpiryDuration: 3
+
+  AgentGateway:
+    Type: AWS::BedrockAgentCore::Gateway
+    Properties:
+      Name: ${self:custom.servicePrefix}-gateway
+      Description: Routes the agent's SQL tool calls to the RunSqlQuery Lambda
+      AuthorizerType: AWS_IAM
+      ProtocolType: MCP
+      RoleArn: !GetAtt AgentGatewayRole.Arn
+
+  AgentGatewayTarget:
+    Type: AWS::BedrockAgentCore::GatewayTarget
+    Properties:
+      GatewayIdentifier: !Ref AgentGateway
+      Name: run-sql-query
+      Description: Executes a single read-only SQL query against the traffic monitoring database
+      CredentialProviderConfigurations:
+        - CredentialProviderType: GATEWAY_IAM_ROLE
+      TargetConfiguration:
+        Mcp:
+          Lambda:
+            LambdaArn: !GetAtt RunSqlQueryLambdaFunction.Arn
+            ToolSchema:
+              InlinePayload:
+                - Name: run_sql_query
+                  Description: Executes a single read-only PostgreSQL SELECT (or WITH ... SELECT) statement and returns the matching rows as JSON.
+                  InputSchema:
+                    Type: object
+                    Properties:
+                      sql:
+                        Type: string
+                        Description: A single PostgreSQL SELECT (or WITH ... SELECT) statement, using only the tables described in the agent's system prompt.
+                    Required:
+                      - sql
+
+  Agent:
+    Type: AWS::BedrockAgentCore::Harness
+    Properties:
+      HarnessName: TrafficMonitoringAgent
+      ExecutionRoleArn: !GetAtt AgentRole.Arn
+      TimeoutSeconds: 900
+      MaxIterations: 5
+      Memory:
+        AgentCoreMemoryConfiguration:
+          Arn: !GetAtt AgentMemory.MemoryArn
+      Model:
+        BedrockModelConfig:
+          ModelId: ${self:custom.bedrock.inferenceProfileId}
+      SystemPrompt:
+        - Text: >-
+            You are a data analyst for a traffic monitoring service in
+            Colombia. Always respond in Spanish, regardless of the language
+            of the question. You answer questions by generating a single
+            read-only PostgreSQL SELECT (or WITH ... SELECT) statement and
+            calling the run_sql_query tool to execute it, then explaining
+            the result in plain language.
+
+            Tone: formal but brief -- answer directly, without padding,
+            unless the user explicitly asks for more detail. Never use
+            emojis. Always stay polite and respectful, even if the user is
+            rude or inappropriate -- never respond in kind.
+
+            Schema (all in the default "public" schema):
+            - cities(id, name): the only cities are Bogotá, Medellín, Cali
+              and Barranquilla.
+            - severities(id, code): code is one of minor, moderate, severe,
+              fatal.
+            - roads(id, city_id, name): a road belongs to one city.
+            - sensors(id): a sensor's identifier, nothing else.
+            - accident_reports(id, occurred_at, city_id, road_id,
+              severity_id, vehicles_involved, source_s3_key, row_number,
+              created_at, updated_at): one row per traffic accident report.
+              Join city_id to cities, road_id to roads, severity_id to
+              severities to get their names/codes.
+            - sensor_readings(id, sensor_id, city_id, road_id, speed_avg,
+              vehicle_count, recorded_at, created_at, updated_at): one row
+              per sensor reading (average speed, vehicle count). Join
+              city_id to cities and road_id to roads the same way.
+
+            There are no personal data columns anywhere in this schema.
+            Never generate INSERT, UPDATE, DELETE, DROP or any other
+            statement that isn't a read-only SELECT -- if asked to change
+            data, explain that you can only answer questions, not modify
+            the database.
+
+            Only answer questions that can be answered from this schema
+            (traffic accidents and sensor readings). If asked about
+            anything else, say in Spanish that you can only answer
+            questions about traffic accidents and sensor readings in
+            Bogotá, Medellín, Cali and Barranquilla.
+      Tools:
+        - Type: agentcore_gateway
+          Name: run_sql_query
+          Config:
+            AgentCoreGateway:
+              GatewayArn: !GetAtt AgentGateway.GatewayArn
