@@ -74,6 +74,7 @@ RUN pip3 install boto3
 RUN pip3 install Faker
 RUN pip3 install mongodb-migrations
 RUN pip3 install yoyo-migrations
+RUN pip3 install pytest pytest-cov pytest-env pytest-mock moto
 RUN apt-get install -y mosquitto-clients
 USER $USER
 

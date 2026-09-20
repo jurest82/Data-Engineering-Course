@@ -16,10 +16,20 @@ services:
       - DEPLOY_APP=data-eng-course
     working_dir: /app/backend
     restart: unless-stopped
+    depends_on:
+      - mongo
     command:
       - /bin/sh
       - -c
       - sleep infinity
+
+  mongo:
+    container_name: 'DataEngCourseBackendMongo'
+    image: mongo:7
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=example
+    restart: unless-stopped
 
 volumes:
   data-eng-course-backend-bashhistory:

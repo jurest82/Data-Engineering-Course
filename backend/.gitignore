@@ -7,3 +7,4 @@ tmp/
 customlib/
 node_modules/
 *.pth
+.coverage

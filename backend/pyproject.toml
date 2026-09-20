@@ -22,7 +22,8 @@ max-line-length = 80
 disable = [
     "C0111",  # missing-docstring
     "C0411",  # wrong-import-order
-    "W0703"   # broad-except
+    "W0703",  # broad-except
+    "W0621"   # redefined-outer-name (pytest fixtures requesting fixtures)
 ]
 enable = [
     "W0611"   # unused-import

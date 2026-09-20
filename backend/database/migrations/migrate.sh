@@ -25,18 +25,29 @@ if [ -n "$2" ]; then
   ACTION_FLAGS+=('--to_datetime' "$2")
 fi
 
-SECRET_JSON=$(aws secretsmanager get-secret-value \
-  --secret-id "/${DEPLOY_APP}-secrets/MongoCredentials" \
-  --query SecretString --output text)
+if [ -n "$MONGO_LOCAL_HOST" ]; then
+  # Local test Mongo -- plain mongodb://, no Secrets Manager, no DNS SRV.
+  DB_HOST=$MONGO_LOCAL_HOST
+  DB_PORT=${MONGO_LOCAL_PORT:-27017}
+  DB_DBNAME=${MONGO_LOCAL_DBNAME:-trafficMonitoring}
+  DB_USERNAME=$MONGO_LOCAL_USERNAME
+  DB_PASSWORD=$(printf '%s' "$MONGO_LOCAL_PASSWORD" | jq -sRr @uri)
+  MONGO_URL="mongodb://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_DBNAME}?authSource=admin"
+else
+  SECRET_JSON=$(aws secretsmanager get-secret-value \
+    --secret-id "/${DEPLOY_APP}-secrets/MongoCredentials" \
+    --query SecretString --output text)
 
-DB_HOST=$(echo "$SECRET_JSON" | jq -r '.host')
-DB_DBNAME=$(echo "$SECRET_JSON" | jq -r '.dbname')
-DB_USERNAME=$(echo "$SECRET_JSON" | jq -r '.username')
-# command substitution already strips the trailing newline jq's -r adds, so
-# this URL-encodes the password as-is (no xargs word-splitting pitfalls for
-# passwords containing spaces).
-DB_PASSWORD_RAW=$(echo "$SECRET_JSON" | jq -r '.password')
-DB_PASSWORD=$(printf '%s' "$DB_PASSWORD_RAW" | jq -sRr @uri)
+  DB_HOST=$(echo "$SECRET_JSON" | jq -r '.host')
+  DB_DBNAME=$(echo "$SECRET_JSON" | jq -r '.dbname')
+  DB_USERNAME=$(echo "$SECRET_JSON" | jq -r '.username')
+  # command substitution already strips the trailing newline jq's -r adds, so
+  # this URL-encodes the password as-is (no xargs word-splitting pitfalls for
+  # passwords containing spaces).
+  DB_PASSWORD_RAW=$(echo "$SECRET_JSON" | jq -r '.password')
+  DB_PASSWORD=$(printf '%s' "$DB_PASSWORD_RAW" | jq -sRr @uri)
+  MONGO_URL="mongodb+srv://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}/${DB_DBNAME}"
+fi
 
 # mongodb-migrate loads each migration file with a raw __import__(), which
 # needs /app/backend on sys.path for "from src.common.mongo import ..." to
@@ -46,7 +57,7 @@ BACKEND_ROOT=$(cd "$EXEC_PATH/../.." && pwd)
 export PYTHONPATH="$BACKEND_ROOT${PYTHONPATH:+:$PYTHONPATH}"
 
 mongodb-migrate \
-  --url "mongodb+srv://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}/${DB_DBNAME}" \
+  --url "$MONGO_URL" \
   --migrations "$EXEC_PATH/migrations" \
   --metastore migrationLogs \
   "${ACTION_FLAGS[@]}"
