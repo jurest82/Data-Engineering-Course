@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [x.x.x] - dd/mm/yyyy
+
+### Added
+
+- Automated test suite (`pytest` + `moto`) covering every Lambda across the batch, streaming, ETL and Bedrock flows, running against local MongoDB/PostgreSQL containers (new in the backend devcontainer, with `mongo.py`/`postgres.py` and their `migrate.sh` scripts detecting local vs. cloud automatically) and mocked AWS services, no real AWS, MongoDB Atlas or RDS involved
+
 ## [1.0.0] - 19/09/2026
 
 ### Added
