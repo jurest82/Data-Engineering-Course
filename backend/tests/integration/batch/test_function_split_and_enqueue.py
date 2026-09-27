@@ -1,3 +1,4 @@
+import json
 import os
 
 import pytest
@@ -25,6 +26,12 @@ def test_split_and_enqueue_valid_file_is_split_and_moved(s3_client, sqs_client):
         QueueUrl=os.environ['ACCIDENT_REPORTS_QUEUE_URL'],
         MaxNumberOfMessages=10)['Messages']
     assert len(messages) == 3
+    rows = sorted((json.loads(message['Body']) for message in messages),
+                  key=lambda row: row['row_number'])
+    assert [row['row_number'] for row in rows] == [1, 2, 3]
+    assert [row['city'] for row in rows] == ['Bogotá', 'Medellín', 'Cali']
+    assert [row['severity'] for row in rows] == ['minor', 'moderate', 'severe']
+    assert all(row['source_s3_key'] == OBJECT_KEY for row in rows)
 
     keys = [
         obj['Key']
@@ -53,6 +60,11 @@ def test_split_and_enqueue_invalid_file_is_moved_to_failed(
     # ACT / ASSERT
     with pytest.raises(WorkbookValidationError):
         handler(EVENT, None)
+
+    messages = sqs_client.receive_message(
+        QueueUrl=os.environ['ACCIDENT_REPORTS_QUEUE_URL'],
+        MaxNumberOfMessages=10).get('Messages', [])
+    assert not messages
 
     keys = [
         obj['Key']
