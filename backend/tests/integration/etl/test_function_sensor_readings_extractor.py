@@ -1,6 +1,8 @@
 import json
 import os
 
+import pytest
+
 from tests.repositories.sqs_connection import drain_queue
 
 
@@ -40,3 +42,26 @@ def test_sensor_readings_extractor_forwards_documents_to_dispatcher(sqs_client):
     }
     assert forwarded_ids == {str(oid)
                              for oid in inserted.inserted_ids}
+
+
+def test_sensor_readings_extractor_raises_on_malformed_message(sqs_client):
+    # ARRANGE
+    os.environ['DISPATCHER_QUEUE_URL'] = os.environ[
+        'SENSOR_READINGS_DISPATCHER_QUEUE_URL']
+    from src.sensor_readings_extractor import (
+        handler as sensor_readings_extractor,
+    )
+
+    event = {
+        'Records': [{
+            'body': 'not-json'
+        }]
+    }
+
+    # ACT / ASSERT
+    with pytest.raises(json.JSONDecodeError):
+        sensor_readings_extractor.handler(event, None)
+
+    messages = drain_queue(sqs_client,
+                           os.environ['SENSOR_READINGS_DISPATCHER_QUEUE_URL'])
+    assert not messages
