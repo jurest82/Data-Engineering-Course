@@ -9,8 +9,7 @@ def test_accident_reports_dispatcher_publishes_generated_action(
     # ARRANGE
     os.environ['ETL_TOPIC_ARN'] = os.environ['ACCIDENT_REPORTS_ETL_TOPIC_ARN']
     from src.accident_reports_dispatcher import (
-        handler as accident_reports_dispatcher,
-    )
+        handler as accident_reports_dispatcher, )
 
     body = json.dumps({
         '_id': 'accident-report-1',
@@ -41,8 +40,7 @@ def test_accident_reports_dispatcher_raises_on_malformed_record(
     # ARRANGE
     os.environ['ETL_TOPIC_ARN'] = os.environ['ACCIDENT_REPORTS_ETL_TOPIC_ARN']
     from src.accident_reports_dispatcher import (
-        handler as accident_reports_dispatcher,
-    )
+        handler as accident_reports_dispatcher, )
 
     event = {
         'Records': [{}]

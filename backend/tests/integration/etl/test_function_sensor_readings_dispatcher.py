@@ -9,8 +9,7 @@ def test_sensor_readings_dispatcher_publishes_generated_action(
     # ARRANGE
     os.environ['ETL_TOPIC_ARN'] = os.environ['SENSOR_READINGS_ETL_TOPIC_ARN']
     from src.sensor_readings_dispatcher import (
-        handler as sensor_readings_dispatcher,
-    )
+        handler as sensor_readings_dispatcher, )
 
     body = json.dumps({
         '_id': 'sensor-reading-1',
@@ -41,8 +40,7 @@ def test_sensor_readings_dispatcher_raises_on_malformed_record(
     # ARRANGE
     os.environ['ETL_TOPIC_ARN'] = os.environ['SENSOR_READINGS_ETL_TOPIC_ARN']
     from src.sensor_readings_dispatcher import (
-        handler as sensor_readings_dispatcher,
-    )
+        handler as sensor_readings_dispatcher, )
 
     event = {
         'Records': [{}]

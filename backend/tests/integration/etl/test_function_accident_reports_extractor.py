@@ -12,8 +12,7 @@ def test_accident_reports_extractor_forwards_documents_to_dispatcher(
     os.environ['DISPATCHER_QUEUE_URL'] = os.environ[
         'ACCIDENT_REPORTS_DISPATCHER_QUEUE_URL']
     from src.accident_reports_extractor import (
-        handler as accident_reports_extractor,
-    )
+        handler as accident_reports_extractor, )
     from src.common import mongo
 
     collection = mongo.get_collection(
@@ -50,8 +49,7 @@ def test_accident_reports_extractor_raises_on_malformed_message(sqs_client):
     os.environ['DISPATCHER_QUEUE_URL'] = os.environ[
         'ACCIDENT_REPORTS_DISPATCHER_QUEUE_URL']
     from src.accident_reports_extractor import (
-        handler as accident_reports_extractor,
-    )
+        handler as accident_reports_extractor, )
 
     event = {
         'Records': [{

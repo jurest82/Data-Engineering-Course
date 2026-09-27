@@ -5,8 +5,7 @@ import psycopg2
 import pytest
 
 from tests.mocks.functions.etl.sensor_readings_transformer.valid import (
-    DOCUMENT as VALID_DOCUMENT,
-)
+    DOCUMENT as VALID_DOCUMENT, )
 
 INVALID_FIELD_CASES = [
     pytest.param({
@@ -50,8 +49,7 @@ def test_sensor_readings_transformer_valid_document_is_upserted(sqs_client):  # 
     os.environ['TRANSFORMER_DLQ_URL'] = os.environ[
         'SENSOR_READINGS_TRANSFORMER_DLQ_URL']
     from src.sensor_readings_transformer import (
-        handler as sensor_readings_transformer,
-    )
+        handler as sensor_readings_transformer, )
     from tests.mocks.functions.etl.sensor_readings_transformer.valid import (
         DOCUMENT,
         EVENT,
@@ -79,8 +77,7 @@ def test_sensor_readings_transformer_invalid_document_is_sent_to_dlq(
     os.environ['TRANSFORMER_DLQ_URL'] = os.environ[
         'SENSOR_READINGS_TRANSFORMER_DLQ_URL']
     from src.sensor_readings_transformer import (
-        handler as sensor_readings_transformer,
-    )
+        handler as sensor_readings_transformer, )
     from tests.mocks.functions.etl.sensor_readings_transformer.invalid import (
         DOCUMENT,
         EVENT,
@@ -110,8 +107,7 @@ def test_sensor_readings_transformer_rejects_missing_fields(sqs_client):
     os.environ['TRANSFORMER_DLQ_URL'] = os.environ[
         'SENSOR_READINGS_TRANSFORMER_DLQ_URL']
     from src.sensor_readings_transformer import (
-        handler as sensor_readings_transformer,
-    )
+        handler as sensor_readings_transformer, )
 
     document = dict(VALID_DOCUMENT)
     del document['vehicle_count']
@@ -139,8 +135,7 @@ def test_sensor_readings_transformer_rejects_invalid_field(
     os.environ['TRANSFORMER_DLQ_URL'] = os.environ[
         'SENSOR_READINGS_TRANSFORMER_DLQ_URL']
     from src.sensor_readings_transformer import (
-        handler as sensor_readings_transformer,
-    )
+        handler as sensor_readings_transformer, )
 
     document = {
         **VALID_DOCUMENT,
@@ -169,8 +164,7 @@ def test_sensor_readings_transformer_rolls_back_on_database_error(
     os.environ['TRANSFORMER_DLQ_URL'] = os.environ[
         'SENSOR_READINGS_TRANSFORMER_DLQ_URL']
     from src.sensor_readings_transformer import (
-        handler as sensor_readings_transformer,
-    )
+        handler as sensor_readings_transformer, )
 
     mock_connection = mocker.MagicMock()
     mocker.patch.object(sensor_readings_transformer.postgres,

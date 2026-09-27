@@ -11,8 +11,7 @@ def test_sensor_readings_generator_with_no_documents_enqueues_nothing(
     os.environ['EXTRACTOR_QUEUE_URL'] = os.environ[
         'SENSOR_READINGS_EXTRACTOR_QUEUE_URL']
     from src.sensor_readings_generator import (
-        handler as sensor_readings_generator,
-    )
+        handler as sensor_readings_generator, )
 
     # ACT
     sensor_readings_generator.handler({}, None)
@@ -30,8 +29,7 @@ def test_sensor_readings_generator_pages_documents_across_sqs_batches(
         'SENSOR_READINGS_EXTRACTOR_QUEUE_URL']
     from src.common import mongo
     from src.sensor_readings_generator import (
-        handler as sensor_readings_generator,
-    )
+        handler as sensor_readings_generator, )
 
     collection = mongo.get_collection(
         os.environ['MONGO_CREDENTIALS_SECRET_NAME'], 'trafficSensorReadings')

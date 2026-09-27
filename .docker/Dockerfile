@@ -21,7 +21,7 @@ RUN apt-get install -y locales \
 RUN apt-get install -y sudo lsb-release git curl zip unzip jq libsqlite3-0
 
 # Install VSCode extensions dependencies
-RUN pip3 install pylint yapf isort cfn-lint cfn-lint-serverless
+RUN pip3 install pylint yapf cfn-lint cfn-lint-serverless
 RUN npm install -g @anthropic-ai/claude-code
 
 # Install CLI utilities

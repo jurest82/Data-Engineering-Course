@@ -13,8 +13,7 @@ def test_sensor_readings_extractor_forwards_documents_to_dispatcher(sqs_client):
         'SENSOR_READINGS_DISPATCHER_QUEUE_URL']
     from src.common import mongo
     from src.sensor_readings_extractor import (
-        handler as sensor_readings_extractor,
-    )
+        handler as sensor_readings_extractor, )
 
     collection = mongo.get_collection(
         os.environ['MONGO_CREDENTIALS_SECRET_NAME'], 'trafficSensorReadings')
@@ -50,8 +49,7 @@ def test_sensor_readings_extractor_raises_on_malformed_message(sqs_client):
     os.environ['DISPATCHER_QUEUE_URL'] = os.environ[
         'SENSOR_READINGS_DISPATCHER_QUEUE_URL']
     from src.sensor_readings_extractor import (
-        handler as sensor_readings_extractor,
-    )
+        handler as sensor_readings_extractor, )
 
     event = {
         'Records': [{

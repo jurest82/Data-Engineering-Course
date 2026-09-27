@@ -10,8 +10,7 @@ def test_accident_reports_generator_with_no_documents_enqueues_nothing(
     os.environ['EXTRACTOR_QUEUE_URL'] = os.environ[
         'ACCIDENT_REPORTS_EXTRACTOR_QUEUE_URL']
     from src.accident_reports_generator import (
-        handler as accident_reports_generator,
-    )
+        handler as accident_reports_generator, )
 
     # ACT
     accident_reports_generator.handler({}, None)
@@ -28,8 +27,7 @@ def test_accident_reports_generator_pages_documents_across_sqs_batches(
     os.environ['EXTRACTOR_QUEUE_URL'] = os.environ[
         'ACCIDENT_REPORTS_EXTRACTOR_QUEUE_URL']
     from src.accident_reports_generator import (
-        handler as accident_reports_generator,
-    )
+        handler as accident_reports_generator, )
     from src.common import mongo
 
     collection = mongo.get_collection(

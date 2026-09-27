@@ -1,8 +1,7 @@
 import json
 
 from tests.mocks.functions.etl.accident_reports_transformer.valid import (
-    DOCUMENT as VALID_DOCUMENT,
-)
+    DOCUMENT as VALID_DOCUMENT, )
 
 DOCUMENT = {
     **VALID_DOCUMENT,
