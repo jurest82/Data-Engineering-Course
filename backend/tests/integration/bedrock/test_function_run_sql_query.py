@@ -1,3 +1,6 @@
+import os
+
+from src.common import postgres
 from src.run_sql_query.handler import handler
 
 
@@ -90,3 +93,24 @@ def test_run_sql_query_returns_error_and_recovers_after_invalid_sql():
     # ASSERT
     assert failed_response['error'].startswith('Query failed:')
     assert recovered_response['rows'] == [[1]]
+
+
+def test_run_sql_query_rolls_back_side_effects_of_stacked_statements():
+    # ARRANGE
+    sql = ('SELECT 1 AS n; '
+           'CREATE TEMP TABLE probe_stacked_statement (x INT); '
+           'SELECT 2 AS m')
+
+    # ACT
+    response = handler({
+        'sql': sql
+    }, None)
+
+    # ASSERT
+    assert response['rows'] == [[2]]
+    connection = postgres.get_connection(
+        os.environ['READONLY_CREDENTIALS_SECRET_NAME'])
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT to_regclass('pg_temp.probe_stacked_statement')")
+        assert cursor.fetchone()[0] is None
+    connection.rollback()

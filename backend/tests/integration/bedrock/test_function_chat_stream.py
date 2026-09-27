@@ -1,6 +1,8 @@
 import json
 import os
 
+import pytest
+
 from src.chat_stream import handler as chat_stream
 
 STREAM_CHUNKS = [
@@ -133,3 +135,22 @@ def test_chat_stream_send_message_relays_translated_chunks(mocker):
         },
     ]
     assert all(call.kwargs['ConnectionId'] == 'conn-1' for call in posted_calls)
+
+
+def test_chat_stream_raises_on_malformed_body(mocker):
+    # ARRANGE
+    invoke_spy = mocker.spy(chat_stream.AGENTCORE_CLIENT, 'invoke_harness')
+    event = {
+        'requestContext': {
+            'routeKey': 'sendMessage',
+            'connectionId': 'conn-1',
+            'domainName': 'example.execute-api.us-east-1.amazonaws.com',
+            'stage': 'dev',
+        },
+        'body': json.dumps({}),
+    }
+
+    # ACT / ASSERT
+    with pytest.raises(KeyError):
+        chat_stream.handler(event, None)
+    invoke_spy.assert_not_called()
