@@ -1,3 +1,4 @@
+# pylint: disable=duplicate-code
 import json
 import math
 import os
@@ -15,7 +16,7 @@ GENERATOR_BATCH_SIZE = int(os.environ.get('GENERATOR_BATCH_SIZE', '500'))
 MONGO_COLLECTION_NAME = 'trafficSensorReadings'
 
 
-def handler(event, context):
+def handler(event, context):  # pylint: disable=unused-argument
     collection = mongo.get_collection(MONGO_CREDENTIALS_SECRET_NAME,
                                       MONGO_COLLECTION_NAME)
     total = collection.count_documents({})

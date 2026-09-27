@@ -1,5 +1,9 @@
 # README
 
+![Backend CI](https://github.com/jurest82/Data-Engineering-Course/actions/workflows/backend-ci.yml/badge.svg)
+![Infrastructure CI](https://github.com/jurest82/Data-Engineering-Course/actions/workflows/infrastructure-ci.yml/badge.svg)
+![Frontend CI](https://github.com/jurest82/Data-Engineering-Course/actions/workflows/frontend-ci.yml/badge.svg)
+
 - [README](#readme)
   - [Summary](#summary)
     - [Batch pipeline: accident reports](#batch-pipeline-accident-reports)

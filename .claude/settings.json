@@ -47,8 +47,6 @@
       "Bash(docker exec -w /app/docs DataEngCourse python3 architecture.py)",
       "Bash(docker exec DataEngCourseBackend yapf*)",
       "Bash(docker exec -w * DataEngCourseBackend yapf*)",
-      "Bash(docker exec DataEngCourseBackend python3 -m isort*)",
-      "Bash(docker exec -w * DataEngCourseBackend python3 -m isort*)",
 
       "Bash(docker exec -w * DataEngCourseBackend find*)",
       "Bash(docker exec -w * DataEngCourseInfrastructure find*)",

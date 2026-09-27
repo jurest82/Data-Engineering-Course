@@ -14,7 +14,6 @@
         "irongeek.vscode-env",
         "mikestead.dotenv",
         "ms-azuretools.vscode-docker",
-        "ms-python.isort",
         "ms-python.pylint",
         "ms-python.python",
         "ms-vscode.live-server",
@@ -38,6 +37,7 @@
         "cSpell.words": [
           "AGENTCORE",
           "apigatewaymanagementapi",
+          "autouse",
           "Bedrock",
           "Boyacá",
           "cedula",
@@ -89,7 +89,6 @@
         "serverlessIDE.telemetry.enableTelemetry": false,
         "serverlessIDE.validate": true,
         "serverlessIDE.validationProvider": "cfn-lint",
-        "todo-tree.highlights.useColourScheme": true,
         "yapf.interpreter": ["/usr/local/bin/python3"]
       }
     }

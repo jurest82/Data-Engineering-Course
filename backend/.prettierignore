@@ -5,11 +5,15 @@ package-lock.json
 # Environment
 .envs
 
-# Source (formatted separately with yapf/isort)
+# Source and tests (formatted separately with yapf/isort)
 src
+tests
 
 # Serverless Framework deploy artifacts
 .serverless
+
+# Generated coverage report
+htmlcov
 
 # Lambda layer dependencies, installed by entrypoint.sh
 src/layers/*/python

@@ -1,0 +1,6 @@
+[run]
+source =
+    src/
+
+[html]
+directory = htmlcov

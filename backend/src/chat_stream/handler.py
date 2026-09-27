@@ -10,7 +10,7 @@ AGENTCORE_CLIENT = boto3.client('bedrock-agentcore')
 NO_OP_ROUTES = ('$connect', '$disconnect')
 
 
-def handler(event, context):
+def handler(event, context):  # pylint: disable=unused-argument
     request_context = event['requestContext']
     if request_context['routeKey'] in NO_OP_ROUTES:
         return {

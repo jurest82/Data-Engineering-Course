@@ -5,7 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.1.0] - 27/09/2026
+
+### Added
+
+- Automated test suite (`pytest` + `moto`) covering every Lambda across the batch, streaming, ETL and Bedrock flows, running against local MongoDB/PostgreSQL containers (new in the backend devcontainer, with `mongo.py`/`postgres.py` and their `migrate.sh` scripts detecting local vs. cloud automatically) and mocked AWS services, no real AWS, MongoDB Atlas or RDS involved
+- GitHub Actions CI: formatting checks for all three subprojects (`backend`, `infrastructure`, `frontend`), plus `pylint` and the full `pytest` suite (against real MongoDB/PostgreSQL service containers) for `backend`, on every push/PR touching each one
+- CI status badges in the root README
+- A Code of Conduct (Contributor Covenant v2.1)
+- A CONTRIBUTING guide covering the local checks expected before a pull request and the commit message convention
 
 ## [1.0.0] - 19/09/2026
 
