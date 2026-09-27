@@ -17,9 +17,17 @@ def get_connection():
     return _CACHE['connection']
 
 
-def fetch_all(query):
+def fetch_all(query, params=None):
     connection = get_connection()
     connection.rollback()
     with connection.cursor() as cursor:
-        cursor.execute(query)
+        cursor.execute(query, params)
         return cursor.fetchall()
+
+
+def truncate(*table_names):
+    connection = get_connection()
+    connection.rollback()
+    with connection.cursor() as cursor:
+        cursor.execute(f'TRUNCATE {", ".join(table_names)} CASCADE')
+    connection.commit()

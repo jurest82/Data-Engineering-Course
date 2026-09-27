@@ -62,6 +62,25 @@ def sqs_client(aws_credentials):
             QueueName='SensorReadingsDLQ')
         os.environ['SENSOR_READINGS_DLQ_URL'] = sensor_readings_dlq['QueueUrl']
 
+        # Domain-prefixed: both domains share the same env var names.
+        etl_domains = {
+            'AccidentReports': 'ACCIDENT_REPORTS',
+            'SensorReadings': 'SENSOR_READINGS',
+        }
+        for domain, prefix in etl_domains.items():
+            extractor_queue = connection.create_queue(
+                QueueName=f'{domain}ExtractorQueue')
+            dispatcher_queue = connection.create_queue(
+                QueueName=f'{domain}DispatcherQueue')
+            transformer_dlq = connection.create_queue(
+                QueueName=f'{domain}TransformerDLQ')
+            os.environ[f'{prefix}_EXTRACTOR_QUEUE_URL'] = extractor_queue[
+                'QueueUrl']
+            os.environ[f'{prefix}_DISPATCHER_QUEUE_URL'] = dispatcher_queue[
+                'QueueUrl']
+            os.environ[f'{prefix}_TRANSFORMER_DLQ_URL'] = transformer_dlq[
+                'QueueUrl']
+
         yield connection
 
 

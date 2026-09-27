@@ -24,8 +24,8 @@ disable = [
     "C0411",  # wrong-import-order
     "W0703",  # broad-except
     "W0621",  # redefined-outer-name (pytest fixtures requesting fixtures)
-    "C0415"   # import-outside-toplevel (handlers imported inside test
-              # functions, after moto fixtures set the env vars they read)
+    "C0415",  # import-outside-toplevel (deferred handler imports in tests)
+    "W0404"   # reimported (same deferred-import pattern, across functions)
 ]
 enable = [
     "W0611"   # unused-import

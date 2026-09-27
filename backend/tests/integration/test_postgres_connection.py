@@ -8,7 +8,7 @@ from tests.repositories.postgres_connection import fetch_all
 
 def test_get_connection_connects_to_the_local_postgres():
     # ARRANGE
-    secret_name = os.environ['POSTGRES_CREDENTIALS_SECRET_NAME']
+    secret_name = os.environ['RDS_CREDENTIALS_SECRET_NAME']
 
     # ACT
     connection = postgres.get_connection(secret_name)
