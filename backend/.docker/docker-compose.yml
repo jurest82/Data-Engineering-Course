@@ -18,6 +18,7 @@ services:
     restart: unless-stopped
     depends_on:
       - mongo
+      - postgres
     command:
       - /bin/sh
       - -c
@@ -25,10 +26,19 @@ services:
 
   mongo:
     container_name: 'DataEngCourseBackendMongo'
-    image: mongo:7
+    image: mongo:8
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=example
+    restart: unless-stopped
+
+  postgres:
+    container_name: 'DataEngCourseBackendPostgres'
+    image: postgres:18
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=example
+      - POSTGRES_DB=traffic_monitoring
     restart: unless-stopped
 
 volumes:

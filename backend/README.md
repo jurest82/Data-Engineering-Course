@@ -50,7 +50,7 @@ At `.envs` folder, you'll need to create env files with the variables described 
 
 ### Running tests
 
-Run `pytest` inside the devcontainer to run the whole suite. No `.envs` or real AWS credentials needed: tests run against the local MongoDB container and mocked AWS services (`moto`), never against MongoDB Atlas or a real AWS account.
+Run `pytest` inside the devcontainer to run the whole suite. No `.envs` or real AWS credentials needed: tests run against the local MongoDB/PostgreSQL containers and mocked AWS services (`moto`), never against MongoDB Atlas, RDS or a real AWS account.
 
 A coverage report is generated at `htmlcov/index.html` on every run.
 
