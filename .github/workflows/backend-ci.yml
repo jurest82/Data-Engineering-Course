@@ -1,0 +1,79 @@
+name: Backend CI
+
+on:
+  push:
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yml'
+  pull_request:
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yml'
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    services:
+      mongo:
+        image: mongo:8
+        env:
+          MONGO_INITDB_ROOT_USERNAME: root
+          MONGO_INITDB_ROOT_PASSWORD: example
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet -u root -p example --authenticationDatabase admin --eval 'db.adminCommand(\"ping\")'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: example
+          POSTGRES_DB: traffic_monitoring
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Install Python dependencies
+        run: |
+          pip install pylint yapf isort boto3 Faker mongodb-migrations yoyo-migrations \
+            pytest pytest-cov pytest-env pytest-mock moto
+          pip install openpyxl==3.1.5 pymongo==4.17.0 psycopg2-binary==2.9.10 cryptography==50.0.0
+
+      - name: Check formatting
+        continue-on-error: true
+        run: npm run format:check
+
+      - name: Lint
+        run: pylint src/ database/ tests/ --rcfile=pyproject.toml --fail-under=9.5
+
+      - name: Run tests
+        env:
+          MONGO_LOCAL_HOST: localhost
+          POSTGRES_LOCAL_HOST: localhost
+        run: pytest
