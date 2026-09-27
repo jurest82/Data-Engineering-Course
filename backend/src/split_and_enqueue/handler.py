@@ -21,7 +21,7 @@ FAILED_PREFIX = 'failed/'
 SQS_BATCH_SIZE = 10
 
 
-def handler(event, context):
+def handler(event, context):  # pylint: disable=unused-argument
     for record in event['Records']:
         bucket_name = record['s3']['bucket']['name']
         object_key = unquote_plus(record['s3']['object']['key'])

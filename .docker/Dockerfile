@@ -21,7 +21,7 @@ RUN apt-get install -y locales \
 RUN apt-get install -y sudo lsb-release git curl zip unzip jq libsqlite3-0
 
 # Install VSCode extensions dependencies
-RUN pip3 install pylint yapf isort cfn-lint cfn-lint-serverless
+RUN pip3 install pylint yapf cfn-lint cfn-lint-serverless
 RUN npm install -g @anthropic-ai/claude-code
 
 # Install CLI utilities
@@ -74,6 +74,7 @@ RUN pip3 install boto3
 RUN pip3 install Faker
 RUN pip3 install mongodb-migrations
 RUN pip3 install yoyo-migrations
+RUN pip3 install pytest pytest-cov pytest-env pytest-mock moto
 RUN apt-get install -y mosquitto-clients
 USER $USER
 

@@ -10,7 +10,7 @@
     "eslint-config-prettier": "^10.1.8"
   },
   "scripts": {
-    "format": "prettier --write . && yapf -i -r src/ database/ && python3 -m isort src/ database/",
-    "format:check": "prettier --check . && yapf --diff -r src/ database/ && python3 -m isort --check-only src/ database/"
+    "format": "prettier --write . && yapf -i -r src/ database/ tests/",
+    "format:check": "prettier --check . && yapf --diff -r src/ database/ tests/"
   }
 }

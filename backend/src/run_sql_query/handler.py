@@ -16,7 +16,7 @@ ALLOWED_STATEMENT_RE = re.compile(r'^\s*(SELECT|WITH)\b', re.IGNORECASE)
 LIMIT_RE = re.compile(r'\blimit\s+(\d+)', re.IGNORECASE)
 
 
-def handler(event, context):
+def handler(event, context):  # pylint: disable=unused-argument
     sql = event.get('sql')
     if sql is None:
         return {

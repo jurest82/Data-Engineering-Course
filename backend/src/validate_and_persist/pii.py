@@ -8,7 +8,7 @@ secrets_client = boto3.client('secretsmanager')
 
 PII_ENCRYPTION_KEY_SECRET_NAME = os.environ['PII_ENCRYPTION_KEY_SECRET_NAME']
 
-_FERNET = None
+_CACHE = {}
 
 
 def encrypt(value):
@@ -20,10 +20,9 @@ def decrypt(value):
 
 
 def _get_fernet():
-    global _FERNET
-    if _FERNET is None:
+    if 'fernet' not in _CACHE:
         secret = json.loads(
             secrets_client.get_secret_value(
                 SecretId=PII_ENCRYPTION_KEY_SECRET_NAME)['SecretString'])
-        _FERNET = Fernet(secret['key'].encode())
-    return _FERNET
+        _CACHE['fernet'] = Fernet(secret['key'].encode())
+    return _CACHE['fernet']

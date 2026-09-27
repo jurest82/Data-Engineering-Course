@@ -21,7 +21,7 @@ XLSX_CONTENT_TYPE = ('application/vnd.openxmlformats-officedocument'
                      '.spreadsheetml.sheet')
 
 
-def handler(event, context):
+def handler(event, context):  # pylint: disable=unused-argument
     try:
         payload = json.loads(event.get('body') or '{}')
     except json.JSONDecodeError:

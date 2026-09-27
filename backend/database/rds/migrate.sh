@@ -21,19 +21,28 @@ if [ -n "$2" ]; then
   REVISION_FLAGS=('--revision' "$2")
 fi
 
-SECRET_JSON=$(aws secretsmanager get-secret-value \
-  --secret-id "/${DEPLOY_APP}-rds/MasterCredentials" \
-  --query SecretString --output text)
+if [ -n "$POSTGRES_LOCAL_HOST" ]; then
+  # Local test Postgres -- no Secrets Manager involved.
+  DB_HOST=$POSTGRES_LOCAL_HOST
+  DB_PORT=${POSTGRES_LOCAL_PORT:-5432}
+  DB_DBNAME=${POSTGRES_LOCAL_DBNAME:-traffic_monitoring}
+  DB_USERNAME=$POSTGRES_LOCAL_USERNAME
+  DB_PASSWORD=$(printf '%s' "$POSTGRES_LOCAL_PASSWORD" | jq -sRr @uri)
+else
+  SECRET_JSON=$(aws secretsmanager get-secret-value \
+    --secret-id "/${DEPLOY_APP}-rds/MasterCredentials" \
+    --query SecretString --output text)
 
-DB_HOST=$(echo "$SECRET_JSON" | jq -r '.host')
-DB_PORT=$(echo "$SECRET_JSON" | jq -r '.port')
-DB_DBNAME=$(echo "$SECRET_JSON" | jq -r '.dbname')
-DB_USERNAME=$(echo "$SECRET_JSON" | jq -r '.username')
-# command substitution already strips the trailing newline jq's -r adds, so
-# this URL-encodes the password as-is (no xargs word-splitting pitfalls for
-# passwords containing spaces).
-DB_PASSWORD_RAW=$(echo "$SECRET_JSON" | jq -r '.password')
-DB_PASSWORD=$(printf '%s' "$DB_PASSWORD_RAW" | jq -sRr @uri)
+  DB_HOST=$(echo "$SECRET_JSON" | jq -r '.host')
+  DB_PORT=$(echo "$SECRET_JSON" | jq -r '.port')
+  DB_DBNAME=$(echo "$SECRET_JSON" | jq -r '.dbname')
+  DB_USERNAME=$(echo "$SECRET_JSON" | jq -r '.username')
+  # command substitution already strips the trailing newline jq's -r adds, so
+  # this URL-encodes the password as-is (no xargs word-splitting pitfalls for
+  # passwords containing spaces).
+  DB_PASSWORD_RAW=$(echo "$SECRET_JSON" | jq -r '.password')
+  DB_PASSWORD=$(printf '%s' "$DB_PASSWORD_RAW" | jq -sRr @uri)
+fi
 
 yoyo "$YOYO_ACTION" \
   --config "$EXEC_PATH/yoyo.ini" \

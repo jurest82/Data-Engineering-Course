@@ -6,6 +6,7 @@
     - [Development container](#development-container)
     - [Environment variables](#environment-variables)
     - [Dependencies](#dependencies)
+    - [Running tests](#running-tests)
     - [Database migrations](#database-migrations)
     - [Database seeding](#database-seeding)
     - [RDS migrations](#rds-migrations)
@@ -46,6 +47,12 @@ At `.envs` folder, you'll need to create env files with the variables described 
 ### Dependencies
 
 `serverless` user must be created using `IAM` at `AWS Organization account`, and it's credentials configured in `../.envs/aws.env`.
+
+### Running tests
+
+Run `pytest` inside the devcontainer to run the whole suite. No `.envs` or real AWS credentials needed: tests run against the local MongoDB/PostgreSQL containers and mocked AWS services (`moto`), never against MongoDB Atlas, RDS or a real AWS account.
+
+A coverage report is generated at `htmlcov/index.html` on every run.
 
 ### Database migrations
 

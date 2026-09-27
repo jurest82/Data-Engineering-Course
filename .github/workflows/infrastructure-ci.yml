@@ -1,0 +1,31 @@
+name: Infrastructure CI
+
+on:
+  push:
+    paths:
+      - 'infrastructure/**'
+      - '.github/workflows/infrastructure-ci.yml'
+  pull_request:
+    paths:
+      - 'infrastructure/**'
+      - '.github/workflows/infrastructure-ci.yml'
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infrastructure
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Check formatting
+        run: npm run format:check

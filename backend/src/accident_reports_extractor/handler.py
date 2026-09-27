@@ -13,7 +13,7 @@ DISPATCHER_QUEUE_URL = os.environ['DISPATCHER_QUEUE_URL']
 MONGO_COLLECTION_NAME = 'accidentReports'
 
 
-def handler(event, context):
+def handler(event, context):  # pylint: disable=unused-argument
     collection = mongo.get_collection(MONGO_CREDENTIALS_SECRET_NAME,
                                       MONGO_COLLECTION_NAME)
     for record in event['Records']:
