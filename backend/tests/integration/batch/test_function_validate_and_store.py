@@ -44,3 +44,71 @@ def test_validate_and_store_invalid_file_is_rejected(s3_client):
     objects = s3_client.list_objects_v2(
         Bucket=os.environ['RAW_REPORTS_BUCKET_NAME']).get('Contents', [])
     assert not objects
+
+
+def test_validate_and_store_rejects_malformed_json_body(s3_client):
+    # ARRANGE
+    from src.validate_and_store.handler import handler
+    event = {
+        'body': 'not-json'
+    }
+
+    # ACT
+    response = handler(event, None)
+
+    # ASSERT
+    assert response['statusCode'] == 400
+    assert json.loads(
+        response['body'])['message'] == 'Request body must be valid JSON'
+
+
+def test_validate_and_store_rejects_missing_file(s3_client):
+    # ARRANGE
+    from src.validate_and_store.handler import handler
+    event = {
+        'body': json.dumps({})
+    }
+
+    # ACT
+    response = handler(event, None)
+
+    # ASSERT
+    assert response['statusCode'] == 400
+    assert json.loads(response['body'])['message'] == '"file" is required'
+
+
+def test_validate_and_store_rejects_invalid_base64(s3_client):
+    # ARRANGE
+    from src.validate_and_store.handler import handler
+    event = {
+        'body': json.dumps({
+            'file': 'not-valid-base64!!'
+        })
+    }
+
+    # ACT
+    response = handler(event, None)
+
+    # ASSERT
+    assert response['statusCode'] == 400
+    assert json.loads(
+        response['body'])['message'] == '"file" is not valid base64'
+
+
+def test_validate_and_store_rejects_non_xlsx_file(s3_client):
+    # ARRANGE
+    from src.validate_and_store.handler import handler
+    encoded_file = base64.b64encode(b'not an xlsx file').decode()
+    event = {
+        'body': json.dumps({
+            'file': encoded_file
+        })
+    }
+
+    # ACT
+    response = handler(event, None)
+
+    # ASSERT
+    assert response['statusCode'] == 400
+    assert json.loads(
+        response['body'])['message'] == 'File is not a valid .xlsx workbook'
