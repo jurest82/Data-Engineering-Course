@@ -30,4 +30,41 @@ def secrets_manager_client(aws_credentials):
                 'password': os.environ['MONGO_LOCAL_PASSWORD'],
             }),
         )
+        connection.create_secret(
+            Name=os.environ['PII_ENCRYPTION_KEY_SECRET_NAME'],
+            SecretString=json.dumps({
+                'key': os.environ['PII_ENCRYPTION_KEY'],
+            }),
+        )
+        yield connection
+
+
+@pytest.fixture(scope='session')
+def s3_client(aws_credentials):
+    """Mocked S3 client for moto."""
+    with mock_aws():
+        connection = boto3.client('s3')
+        connection.create_bucket(Bucket=os.environ['RAW_REPORTS_BUCKET_NAME'])
+        yield connection
+
+
+@pytest.fixture(scope='session')
+def sqs_client(aws_credentials):
+    """Mocked SQS client for moto."""
+    with mock_aws():
+        connection = boto3.client('sqs')
+        queue = connection.create_queue(QueueName='AccidentReportsQueue')
+        dlq = connection.create_queue(QueueName='AccidentReportsDLQ')
+        os.environ['ACCIDENT_REPORTS_QUEUE_URL'] = queue['QueueUrl']
+        os.environ['ACCIDENT_REPORTS_DLQ_URL'] = dlq['QueueUrl']
+        yield connection
+
+
+@pytest.fixture(scope='session')
+def sns_client(aws_credentials):
+    """Mocked SNS client for moto."""
+    with mock_aws():
+        connection = boto3.client('sns')
+        topic = connection.create_topic(Name='AccidentReportsEtlTopic')
+        os.environ['ACCIDENT_REPORTS_ETL_TOPIC_ARN'] = topic['TopicArn']
         yield connection
