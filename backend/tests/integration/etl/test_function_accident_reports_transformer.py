@@ -5,8 +5,7 @@ import psycopg2
 import pytest
 
 from tests.mocks.functions.etl.accident_reports_transformer.valid import (
-    DOCUMENT as VALID_DOCUMENT,
-)
+    DOCUMENT as VALID_DOCUMENT, )
 
 INVALID_FIELD_CASES = [
     pytest.param({
@@ -40,13 +39,17 @@ FACT_QUERY = '''
 '''
 
 
-def test_accident_reports_transformer_valid_document_is_upserted(sqs_client):  # pylint: disable=unused-argument
-    # ARRANGE
+@pytest.fixture(scope='module')
+def accident_reports_transformer(sqs_client):  # pylint: disable=unused-argument
     os.environ['TRANSFORMER_DLQ_URL'] = os.environ[
         'ACCIDENT_REPORTS_TRANSFORMER_DLQ_URL']
-    from src.accident_reports_transformer import (
-        handler as accident_reports_transformer,
-    )
+    from src.accident_reports_transformer import handler as module
+    return module
+
+
+def test_accident_reports_transformer_valid_document_is_upserted(
+        accident_reports_transformer):
+    # ARRANGE
     from tests.mocks.functions.etl.accident_reports_transformer.valid import (
         DOCUMENT,
         EVENT,
@@ -70,16 +73,11 @@ def test_accident_reports_transformer_valid_document_is_upserted(sqs_client):  #
     assert row_number == DOCUMENT['row_number']
 
 
-def test_accident_reports_transformer_reprocessing_updates_the_row(sqs_client):  # pylint: disable=unused-argument
+def test_accident_reports_transformer_reprocessing_updates_the_row(
+        accident_reports_transformer):
     # ARRANGE
-    os.environ['TRANSFORMER_DLQ_URL'] = os.environ[
-        'ACCIDENT_REPORTS_TRANSFORMER_DLQ_URL']
-    from src.accident_reports_transformer import (
-        handler as accident_reports_transformer,
-    )
     from tests.mocks.functions.etl.accident_reports_transformer.valid import (
-        DOCUMENT,
-    )
+        DOCUMENT, )
     from tests.repositories.postgres_connection import fetch_all
 
     updated_document = dict(DOCUMENT)
@@ -108,13 +106,8 @@ def test_accident_reports_transformer_reprocessing_updates_the_row(sqs_client): 
 
 
 def test_accident_reports_transformer_invalid_document_is_sent_to_dlq(
-        sqs_client):
+        sqs_client, accident_reports_transformer):
     # ARRANGE
-    os.environ['TRANSFORMER_DLQ_URL'] = os.environ[
-        'ACCIDENT_REPORTS_TRANSFORMER_DLQ_URL']
-    from src.accident_reports_transformer import (
-        handler as accident_reports_transformer,
-    )
     from tests.mocks.functions.etl.accident_reports_transformer.invalid import (
         DOCUMENT,
         EVENT,
@@ -139,14 +132,9 @@ def test_accident_reports_transformer_invalid_document_is_sent_to_dlq(
     assert not rows
 
 
-def test_accident_reports_transformer_rejects_missing_fields(sqs_client):
+def test_accident_reports_transformer_rejects_missing_fields(
+        sqs_client, accident_reports_transformer):
     # ARRANGE
-    os.environ['TRANSFORMER_DLQ_URL'] = os.environ[
-        'ACCIDENT_REPORTS_TRANSFORMER_DLQ_URL']
-    from src.accident_reports_transformer import (
-        handler as accident_reports_transformer,
-    )
-
     document = dict(VALID_DOCUMENT)
     del document['row_number']
     event = {
@@ -168,14 +156,8 @@ def test_accident_reports_transformer_rejects_missing_fields(sqs_client):
 
 @pytest.mark.parametrize('overrides, expected_error', INVALID_FIELD_CASES)
 def test_accident_reports_transformer_rejects_invalid_field(
-        sqs_client, overrides, expected_error):
+        sqs_client, accident_reports_transformer, overrides, expected_error):
     # ARRANGE
-    os.environ['TRANSFORMER_DLQ_URL'] = os.environ[
-        'ACCIDENT_REPORTS_TRANSFORMER_DLQ_URL']
-    from src.accident_reports_transformer import (
-        handler as accident_reports_transformer,
-    )
-
     document = {
         **VALID_DOCUMENT,
         **overrides
@@ -198,14 +180,8 @@ def test_accident_reports_transformer_rejects_invalid_field(
 
 
 def test_accident_reports_transformer_rolls_back_on_database_error(
-        mocker, sqs_client):  # pylint: disable=unused-argument
+        mocker, accident_reports_transformer):
     # ARRANGE
-    os.environ['TRANSFORMER_DLQ_URL'] = os.environ[
-        'ACCIDENT_REPORTS_TRANSFORMER_DLQ_URL']
-    from src.accident_reports_transformer import (
-        handler as accident_reports_transformer,
-    )
-
     mock_connection = mocker.MagicMock()
     mocker.patch.object(accident_reports_transformer.postgres,
                         'get_connection',
