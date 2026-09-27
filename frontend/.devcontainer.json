@@ -42,8 +42,7 @@
         "serverlessIDE.hover": true,
         "serverlessIDE.telemetry.enableTelemetry": false,
         "serverlessIDE.validate": true,
-        "serverlessIDE.validationProvider": "cfn-lint",
-        "todo-tree.highlights.useColourScheme": true
+        "serverlessIDE.validationProvider": "cfn-lint"
       }
     }
   },
