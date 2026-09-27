@@ -1,8 +1,13 @@
+import base64
+import json
 from pathlib import Path
 
 FIXTURE_PATH = (Path(__file__).resolve().parents[4] / 'fixtures' / 'batch' /
-                'missing_column.json')
+                'missing_column.xlsx')
 
 EVENT = {
-    'body': FIXTURE_PATH.read_text()
+    'body':
+        json.dumps({
+            'file': base64.b64encode(FIXTURE_PATH.read_bytes()).decode()
+        })
 }
