@@ -175,9 +175,9 @@ When a commit touches several things (code + docs, for example), reflect each on
 
 ## Changelog convention
 
-`CHANGELOG.md`'s top two headings are `## [Unreleased]` followed by `## [x.x.x] - dd/mm/yyyy`, and they serve different purposes:
+`CHANGELOG.md` keeps an `## [Unreleased]` heading above the latest `## [x.x.x] - dd/mm/yyyy` only when there's something to put in it; they serve different purposes:
 
-- **`[Unreleased]`** is a backlog: things that are done (built, maybe even committed) but deliberately paused/not deployed yet, kept there so they aren't forgotten. Not always empty.
+- **`[Unreleased]`** is a backlog: things that are done (built, maybe even committed) but deliberately paused/not deployed yet, kept there so they aren't forgotten. Omitted entirely when there's nothing pending, not left as an empty heading.
 - **`[x.x.x] - dd/mm/yyyy`** is the actual next release in progress — its bullets, under whichever standard Keep a Changelog category applies (`### Added`, `### Changed`, `### Fixed`, `### Removed`, etc. — not just `Added`/`Changed`), are what's actively being worked toward shipping, with `x.x.x`/`dd/mm/yyyy` as a placeholder for whatever version/date it turns out to be once released.
 
 Both only list final state, not internal fixes made along the way **before** something ever shipped (e.g. a bug introduced and fixed within the same unreleased cycle isn't its own `Fixed` bullet — the final, correct behavior is just what `Added` describes). A real `Fixed` bullet is for a bug in something from a _previous_, already-released version.
