@@ -21,3 +21,4 @@ def test_cleanup():
     yield
     delete_all('smokeTest')
     delete_all('accidentReports')
+    delete_all('trafficSensorReadings')

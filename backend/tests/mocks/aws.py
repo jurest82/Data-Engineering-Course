@@ -57,6 +57,11 @@ def sqs_client(aws_credentials):
         dlq = connection.create_queue(QueueName='AccidentReportsDLQ')
         os.environ['ACCIDENT_REPORTS_QUEUE_URL'] = queue['QueueUrl']
         os.environ['ACCIDENT_REPORTS_DLQ_URL'] = dlq['QueueUrl']
+
+        sensor_readings_dlq = connection.create_queue(
+            QueueName='SensorReadingsDLQ')
+        os.environ['SENSOR_READINGS_DLQ_URL'] = sensor_readings_dlq['QueueUrl']
+
         yield connection
 
 
@@ -67,4 +72,10 @@ def sns_client(aws_credentials):
         connection = boto3.client('sns')
         topic = connection.create_topic(Name='AccidentReportsEtlTopic')
         os.environ['ACCIDENT_REPORTS_ETL_TOPIC_ARN'] = topic['TopicArn']
+
+        sensor_readings_topic = connection.create_topic(
+            Name='SensorReadingsEtlTopic')
+        os.environ['SENSOR_READINGS_ETL_TOPIC_ARN'] = sensor_readings_topic[
+            'TopicArn']
+
         yield connection
