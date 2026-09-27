@@ -26,7 +26,7 @@ PRIMARY_KEY_COLUMNS_QUERY = '''
 
 
 @pytest.fixture(autouse=True, scope='session')
-def ensure_sensor_readings_composite_pk(arrange):
+def ensure_sensor_readings_composite_pk(arrange):  # pylint: disable=unused-argument
     """Reproduce migration 20260830000003's composite key, sans pg_partman."""
     columns = {row[0]
                for row in fetch_all(PRIMARY_KEY_COLUMNS_QUERY)}

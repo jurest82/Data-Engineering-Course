@@ -4,7 +4,7 @@ from src.common import mongo
 from tests.repositories.connection import get_database
 
 
-def test_get_collection_connects_to_the_local_mongo(secrets_manager_client):
+def test_get_collection_connects_to_the_local_mongo(secrets_manager_client):  # pylint: disable=unused-argument
     # ARRANGE
     secret_name = os.environ['MONGO_CREDENTIALS_SECRET_NAME']
 

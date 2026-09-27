@@ -5,7 +5,7 @@ import pytest
 
 
 def test_accident_reports_dispatcher_publishes_generated_action(
-        mocker, sns_client):
+        mocker, sns_client):  # pylint: disable=unused-argument
     # ARRANGE
     os.environ['ETL_TOPIC_ARN'] = os.environ['ACCIDENT_REPORTS_ETL_TOPIC_ARN']
     from src.accident_reports_dispatcher import (
@@ -37,7 +37,7 @@ def test_accident_reports_dispatcher_publishes_generated_action(
 
 
 def test_accident_reports_dispatcher_raises_on_malformed_record(
-        mocker, sns_client):
+        mocker, sns_client):  # pylint: disable=unused-argument
     # ARRANGE
     os.environ['ETL_TOPIC_ARN'] = os.environ['ACCIDENT_REPORTS_ETL_TOPIC_ARN']
     from src.accident_reports_dispatcher import (

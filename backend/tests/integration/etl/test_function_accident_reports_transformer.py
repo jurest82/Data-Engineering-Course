@@ -40,7 +40,7 @@ FACT_QUERY = '''
 '''
 
 
-def test_accident_reports_transformer_valid_document_is_upserted(sqs_client):
+def test_accident_reports_transformer_valid_document_is_upserted(sqs_client):  # pylint: disable=unused-argument
     # ARRANGE
     os.environ['TRANSFORMER_DLQ_URL'] = os.environ[
         'ACCIDENT_REPORTS_TRANSFORMER_DLQ_URL']
@@ -70,7 +70,7 @@ def test_accident_reports_transformer_valid_document_is_upserted(sqs_client):
     assert row_number == DOCUMENT['row_number']
 
 
-def test_accident_reports_transformer_reprocessing_updates_the_row(sqs_client):
+def test_accident_reports_transformer_reprocessing_updates_the_row(sqs_client):  # pylint: disable=unused-argument
     # ARRANGE
     os.environ['TRANSFORMER_DLQ_URL'] = os.environ[
         'ACCIDENT_REPORTS_TRANSFORMER_DLQ_URL']
@@ -198,7 +198,7 @@ def test_accident_reports_transformer_rejects_invalid_field(
 
 
 def test_accident_reports_transformer_rolls_back_on_database_error(
-        mocker, sqs_client):
+        mocker, sqs_client):  # pylint: disable=unused-argument
     # ARRANGE
     os.environ['TRANSFORMER_DLQ_URL'] = os.environ[
         'ACCIDENT_REPORTS_TRANSFORMER_DLQ_URL']

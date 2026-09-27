@@ -2,9 +2,11 @@ import json
 import os
 
 
-def test_persist_sensor_reading_valid_reading_is_stored(mocker, sqs_client,
-                                                        sns_client,
-                                                        secrets_manager_client):
+def test_persist_sensor_reading_valid_reading_is_stored(
+    mocker,
+    sqs_client,  # pylint: disable=unused-argument
+    sns_client,  # pylint: disable=unused-argument
+    secrets_manager_client):  # pylint: disable=unused-argument
     # ARRANGE
     from src.persist_sensor_reading import handler as persist_sensor_reading
     from tests.mocks.functions.streaming.persist_sensor_reading.valid import (
@@ -47,7 +49,7 @@ def test_persist_sensor_reading_valid_reading_is_stored(mocker, sqs_client,
 
 
 def test_persist_sensor_reading_invalid_reading_is_sent_to_dlq(
-        sqs_client, sns_client, secrets_manager_client):
+        sqs_client, sns_client, secrets_manager_client):  # pylint: disable=unused-argument
     # ARRANGE
     from src.persist_sensor_reading.handler import handler
     from tests.mocks.functions.streaming.persist_sensor_reading.invalid import (

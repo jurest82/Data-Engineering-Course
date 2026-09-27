@@ -16,7 +16,7 @@ def aws_credentials():
 
 
 @pytest.fixture(scope='session')
-def secrets_manager_client(aws_credentials):
+def secrets_manager_client(aws_credentials):  # pylint: disable=unused-argument
     """Mocked Secrets Manager client for moto."""
     with mock_aws():
         connection = boto3.client('secretsmanager')
@@ -40,7 +40,7 @@ def secrets_manager_client(aws_credentials):
 
 
 @pytest.fixture(scope='session')
-def s3_client(aws_credentials):
+def s3_client(aws_credentials):  # pylint: disable=unused-argument
     """Mocked S3 client for moto."""
     with mock_aws():
         connection = boto3.client('s3')
@@ -49,7 +49,7 @@ def s3_client(aws_credentials):
 
 
 @pytest.fixture(scope='session')
-def sqs_client(aws_credentials):
+def sqs_client(aws_credentials):  # pylint: disable=unused-argument
     """Mocked SQS client for moto."""
     with mock_aws():
         connection = boto3.client('sqs')
@@ -85,7 +85,7 @@ def sqs_client(aws_credentials):
 
 
 @pytest.fixture(scope='session')
-def sns_client(aws_credentials):
+def sns_client(aws_credentials):  # pylint: disable=unused-argument
     """Mocked SNS client for moto."""
     with mock_aws():
         connection = boto3.client('sns')

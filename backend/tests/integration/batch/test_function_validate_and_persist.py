@@ -3,7 +3,7 @@ import os
 
 
 def test_validate_and_persist_valid_row_is_encrypted_and_stored(
-        mocker, sqs_client, sns_client, secrets_manager_client):
+        mocker, sqs_client, sns_client, secrets_manager_client):  # pylint: disable=unused-argument
     # ARRANGE
     from src.validate_and_persist import handler as validate_and_persist
     from src.validate_and_persist import pii
@@ -54,7 +54,7 @@ def test_validate_and_persist_valid_row_is_encrypted_and_stored(
 
 
 def test_validate_and_persist_invalid_row_is_sent_to_dlq(
-        sqs_client, sns_client, secrets_manager_client):
+        sqs_client, sns_client, secrets_manager_client):  # pylint: disable=unused-argument
     # ARRANGE
     from src.validate_and_persist.handler import handler
     from tests.mocks.functions.batch.validate_and_persist.invalid import (

@@ -1,3 +1,4 @@
+# pylint: disable=duplicate-code
 import json
 import os
 
@@ -32,7 +33,7 @@ REQUIRED_FIELDS = (
 )
 
 
-def handler(event, context):
+def handler(event, context):  # pylint: disable=unused-argument
     for record in event['Records']:
         _process_record(record)
 

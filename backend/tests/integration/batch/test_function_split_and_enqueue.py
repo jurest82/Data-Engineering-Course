@@ -5,22 +5,15 @@ import os
 import pytest
 from openpyxl import Workbook
 
+from src.common.accident_reports import REQUIRED_COLUMNS
+
 CITIES = ['Bogotá', 'Medellín', 'Cali', 'Barranquilla']
 
 
 def _build_workbook_bytes(row_count):
     workbook = Workbook()
     worksheet = workbook.active
-    worksheet.append([
-        'fecha',
-        'hora',
-        'ciudad',
-        'via',
-        'severidad',
-        'vehiculos_involucrados',
-        'nombre_persona_involucrada',
-        'cedula_persona_involucrada',
-    ])
+    worksheet.append(REQUIRED_COLUMNS)
     for index in range(row_count):
         worksheet.append([
             '2026-08-01',
@@ -108,7 +101,7 @@ def test_split_and_enqueue_invalid_file_is_moved_to_failed(
 
 
 def test_split_and_enqueue_flushes_sqs_in_batches_of_ten(
-        mocker, s3_client, sqs_client):
+        mocker, s3_client, sqs_client):  # pylint: disable=unused-argument
     # ARRANGE
     from src.split_and_enqueue import handler as split_and_enqueue
 

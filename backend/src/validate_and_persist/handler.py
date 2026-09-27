@@ -1,3 +1,4 @@
+# pylint: disable=duplicate-code
 import datetime as dt
 import json
 import os
@@ -32,7 +33,7 @@ ETL_FIELDS = (
 )
 
 
-def handler(event, context):
+def handler(event, context):  # pylint: disable=unused-argument
     for record in event['Records']:
         _process_record(record)
 

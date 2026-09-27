@@ -5,7 +5,7 @@ import pytest
 
 
 def test_sensor_readings_dispatcher_publishes_generated_action(
-        mocker, sns_client):
+        mocker, sns_client):  # pylint: disable=unused-argument
     # ARRANGE
     os.environ['ETL_TOPIC_ARN'] = os.environ['SENSOR_READINGS_ETL_TOPIC_ARN']
     from src.sensor_readings_dispatcher import (
@@ -37,7 +37,7 @@ def test_sensor_readings_dispatcher_publishes_generated_action(
 
 
 def test_sensor_readings_dispatcher_raises_on_malformed_record(
-        mocker, sns_client):
+        mocker, sns_client):  # pylint: disable=unused-argument
     # ARRANGE
     os.environ['ETL_TOPIC_ARN'] = os.environ['SENSOR_READINGS_ETL_TOPIC_ARN']
     from src.sensor_readings_dispatcher import (

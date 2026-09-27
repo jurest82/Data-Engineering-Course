@@ -46,7 +46,7 @@ def test_validate_and_store_invalid_file_is_rejected(s3_client):
     assert not objects
 
 
-def test_validate_and_store_rejects_malformed_json_body(s3_client):
+def test_validate_and_store_rejects_malformed_json_body(s3_client):  # pylint: disable=unused-argument
     # ARRANGE
     from src.validate_and_store.handler import handler
     event = {
@@ -62,7 +62,7 @@ def test_validate_and_store_rejects_malformed_json_body(s3_client):
         response['body'])['message'] == 'Request body must be valid JSON'
 
 
-def test_validate_and_store_rejects_missing_file(s3_client):
+def test_validate_and_store_rejects_missing_file(s3_client):  # pylint: disable=unused-argument
     # ARRANGE
     from src.validate_and_store.handler import handler
     event = {
@@ -77,7 +77,7 @@ def test_validate_and_store_rejects_missing_file(s3_client):
     assert json.loads(response['body'])['message'] == '"file" is required'
 
 
-def test_validate_and_store_rejects_invalid_base64(s3_client):
+def test_validate_and_store_rejects_invalid_base64(s3_client):  # pylint: disable=unused-argument
     # ARRANGE
     from src.validate_and_store.handler import handler
     event = {
@@ -95,7 +95,7 @@ def test_validate_and_store_rejects_invalid_base64(s3_client):
         response['body'])['message'] == '"file" is not valid base64'
 
 
-def test_validate_and_store_rejects_non_xlsx_file(s3_client):
+def test_validate_and_store_rejects_non_xlsx_file(s3_client):  # pylint: disable=unused-argument
     # ARRANGE
     from src.validate_and_store.handler import handler
     encoded_file = base64.b64encode(b'not an xlsx file').decode()

@@ -45,7 +45,7 @@ FACT_QUERY = '''
 '''
 
 
-def test_sensor_readings_transformer_valid_document_is_upserted(sqs_client):
+def test_sensor_readings_transformer_valid_document_is_upserted(sqs_client):  # pylint: disable=unused-argument
     # ARRANGE
     os.environ['TRANSFORMER_DLQ_URL'] = os.environ[
         'SENSOR_READINGS_TRANSFORMER_DLQ_URL']
@@ -164,7 +164,7 @@ def test_sensor_readings_transformer_rejects_invalid_field(
 
 
 def test_sensor_readings_transformer_rolls_back_on_database_error(
-        mocker, sqs_client):
+        mocker, sqs_client):  # pylint: disable=unused-argument
     # ARRANGE
     os.environ['TRANSFORMER_DLQ_URL'] = os.environ[
         'SENSOR_READINGS_TRANSFORMER_DLQ_URL']
